@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Github, Linkedin, Twitter, Mail, Phone, Menu, X, ChevronRight, ExternalLink } from "lucide-react"
@@ -17,6 +16,7 @@ interface CreativePortfolioProps {
 export default function CreativePortfolio({ primaryColor, secondaryColor, userDetails }: CreativePortfolioProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("home")
+  const [localUserDetails, setLocalUserDetails] = useState<any>(userDetails)
 
   const router = useRouter()
 
@@ -24,6 +24,21 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
   const homeRef = useRef<HTMLDivElement>(null)
   const aboutRef = useRef<HTMLDivElement>(null)
   const contactRef = useRef<HTMLDivElement>(null)
+
+  // Load user details from localStorage if not passed as props
+  useEffect(() => {
+    if (!userDetails) {
+      const savedUserDetails = localStorage.getItem("userDetails")
+      if (savedUserDetails) {
+        try {
+          const parsedDetails = JSON.parse(savedUserDetails)
+          setLocalUserDetails(parsedDetails)
+        } catch (e) {
+          console.error("Error parsing user details:", e)
+        }
+      }
+    }
+  }, [userDetails])
 
   // Function to scroll to section
   const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>, section: string) => {
@@ -56,6 +71,14 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
     "--secondary-color": secondaryColor,
   } as React.CSSProperties
 
+  // Helper function to get placeholder image URL
+  const getPlaceholderImage = (width: number, height: number, text?: string) => {
+    const initials = localUserDetails?.name 
+      ? localUserDetails.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+      : 'ME'
+    return `https://via.placeholder.com/${width}x${height}/${primaryColor.substring(1)}/ffffff?text=${text || initials}`
+  }
+
   return (
     <div style={cssVariables} className="min-h-screen font-sans">
       {/* Navigation */}
@@ -63,7 +86,7 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="text-2xl font-bold" style={{ color: primaryColor }}>
-              Jane Smith
+              {localUserDetails?.name || "Your Name"}
             </div>
 
             {/* Mobile menu button */}
@@ -166,10 +189,10 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
           ref={homeRef}
           className="pt-32 pb-20 min-h-screen flex items-center"
           style={{
-            backgroundImage: userDetails?.backgroundImage
-              ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${userDetails.backgroundImage})`
+            backgroundImage: localUserDetails?.backgroundImage
+              ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${localUserDetails.backgroundImage})`
               : `radial-gradient(circle at 70% 30%, ${secondaryColor}15, transparent 50%), 
-         radial-gradient(circle at 30% 70%, ${primaryColor}15, transparent 50%)`,
+                 radial-gradient(circle at 30% 70%, ${primaryColor}15, transparent 50%)`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -183,13 +206,13 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                     style={{ backgroundColor: secondaryColor }}
                   ></div>
                   <h1 className="text-5xl md:text-7xl font-bold mb-4 relative z-10" style={{ color: primaryColor }}>
-                    Creative
+                    {localUserDetails?.title?.split(' ')[0] || "Creative"}
                     <br />
-                    Designer
+                    {localUserDetails?.title?.split(' ').slice(1).join(' ') || "Designer"}
                   </h1>
                 </div>
                 <p className="text-xl md:text-2xl mb-8 max-w-md text-gray-700">
-                  Turning ideas into visually stunning digital experiences that captivate and engage
+                  {localUserDetails?.bio || "Turning ideas into visually stunning digital experiences that captivate and engage"}
                 </p>
                 <Button
                   onClick={() => scrollToSection(aboutRef, "about")}
@@ -205,11 +228,11 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                   style={{ backgroundColor: secondaryColor + "40" }}
                 ></div>
                 <img
-                  src={userDetails?.profileImage || "/placeholder.svg?height=500&width=500"}
-                  alt="Jane Smith"
+                  src={localUserDetails?.profileImage || getPlaceholderImage(500, 500)}
+                  alt={localUserDetails?.name || "Profile Image"}
                   className="rounded-full relative z-10 w-64 h-64 md:w-96 md:h-96 object-cover shadow-xl"
                   onError={(e) => {
-                    e.currentTarget.src = "/placeholder.svg?height=500&width=500"
+                    e.currentTarget.src = getPlaceholderImage(500, 500)
                   }}
                 />
               </div>
@@ -244,13 +267,10 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                 </h3>
                 <div className="space-y-4 text-gray-700">
                   <p>
-                    I'm a creative designer with a passion for crafting visually stunning and user-friendly digital
-                    experiences. With a background in both graphic design and UX/UI, I bring a holistic approach to
-                    every project.
+                    {localUserDetails?.bio || "I'm a creative designer with a passion for crafting visually stunning and user-friendly digital experiences. With a background in both graphic design and UX/UI, I bring a holistic approach to every project."}
                   </p>
                   <p>
-                    My design philosophy centers around the perfect balance of aesthetics and functionality, ensuring
-                    that every element serves a purpose while contributing to a cohesive and engaging user experience.
+                    {localUserDetails?.bioSecondary || "My design philosophy centers around the perfect balance of aesthetics and functionality, ensuring that every element serves a purpose while contributing to a cohesive and engaging user experience."}
                   </p>
                 </div>
               </div>
@@ -261,54 +281,23 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                     Design Skills
                   </h3>
                   <div className="space-y-6">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">UI/UX Design</span>
-                        <span style={{ color: secondaryColor }}>95%</span>
+                    {localUserDetails?.skills?.slice(0, 4).map((skill: any, index: number) => (
+                      <div key={index}>
+                        <div className="flex justify-between mb-2">
+                          <span className="font-medium">{skill.name || skill}</span>
+                          <span style={{ color: secondaryColor }}>{skill.level || "90%"}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div
+                            className="h-2.5 rounded-full"
+                            style={{ 
+                              width: `${skill.level || "90"}%`, 
+                              backgroundColor: secondaryColor 
+                            }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full"
-                          style={{ width: "95%", backgroundColor: secondaryColor }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">Graphic Design</span>
-                        <span style={{ color: secondaryColor }}>90%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full"
-                          style={{ width: "90%", backgroundColor: secondaryColor }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">Illustration</span>
-                        <span style={{ color: secondaryColor }}>85%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full"
-                          style={{ width: "85%", backgroundColor: secondaryColor }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">Motion Design</span>
-                        <span style={{ color: secondaryColor }}>80%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full"
-                          style={{ width: "80%", backgroundColor: secondaryColor }}
-                        ></div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
                 <div className="p-8 rounded-2xl" style={{ backgroundColor: primaryColor + "08" }}>
@@ -316,54 +305,23 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                     Technical Skills
                   </h3>
                   <div className="space-y-6">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">Figma</span>
-                        <span style={{ color: secondaryColor }}>95%</span>
+                    {localUserDetails?.skills?.slice(4, 8).map((skill: any, index: number) => (
+                      <div key={index}>
+                        <div className="flex justify-between mb-2">
+                          <span className="font-medium">{skill.name || skill}</span>
+                          <span style={{ color: secondaryColor }}>{skill.level || "85%"}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div
+                            className="h-2.5 rounded-full"
+                            style={{ 
+                              width: `${skill.level || "85"}%`, 
+                              backgroundColor: secondaryColor 
+                            }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full"
-                          style={{ width: "95%", backgroundColor: secondaryColor }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">Adobe Creative Suite</span>
-                        <span style={{ color: secondaryColor }}>90%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full"
-                          style={{ width: "90%", backgroundColor: secondaryColor }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">HTML/CSS</span>
-                        <span style={{ color: secondaryColor }}>85%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full"
-                          style={{ width: "85%", backgroundColor: secondaryColor }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">Prototyping</span>
-                        <span style={{ color: secondaryColor }}>90%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full"
-                          style={{ width: "90%", backgroundColor: secondaryColor }}
-                        ></div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -373,46 +331,24 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                   Work Experience
                 </h3>
                 <div className="space-y-10">
-                  <div className="flex">
-                    <div
-                      className="w-4 h-4 mt-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: secondaryColor }}
-                    ></div>
-                    <div className="ml-6">
-                      <div className="font-medium text-xl mb-1">Senior UI/UX Designer</div>
+                  {localUserDetails?.experience?.map((exp: any, index: number) => (
+                    <div key={index} className="flex">
                       <div
-                        className="text-sm inline-block px-3 py-1 rounded-full mb-3"
-                        style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
-                      >
-                        Creative Studio | 2020 - Present
+                        className="w-4 h-4 mt-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: secondaryColor }}
+                      ></div>
+                      <div className="ml-6">
+                        <div className="font-medium text-xl mb-1">{exp.position}</div>
+                        <div
+                          className="text-sm inline-block px-3 py-1 rounded-full mb-3"
+                          style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
+                        >
+                          {exp.company} | {exp.period}
+                        </div>
+                        <p className="text-gray-700">{exp.description}</p>
                       </div>
-                      <p className="text-gray-700">
-                        Leading design for web and mobile applications, creating design systems, and collaborating with
-                        development teams to ensure pixel-perfect implementation. Mentoring junior designers and
-                        establishing design processes.
-                      </p>
                     </div>
-                  </div>
-                  <div className="flex">
-                    <div
-                      className="w-4 h-4 mt-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: secondaryColor }}
-                    ></div>
-                    <div className="ml-6">
-                      <div className="font-medium text-xl mb-1">Graphic Designer</div>
-                      <div
-                        className="text-sm inline-block px-3 py-1 rounded-full mb-3"
-                        style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
-                      >
-                        Design Agency | 2017 - 2020
-                      </div>
-                      <p className="text-gray-700">
-                        Created visual assets for various marketing campaigns, designed brand identities, and developed
-                        print and digital materials for clients across industries. Collaborated with marketing teams to
-                        deliver cohesive brand experiences.
-                      </p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -422,41 +358,29 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                 Featured Projects
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div className="group relative overflow-hidden rounded-xl shadow-sm">
-                  <img
-                    src={userDetails?.projects?.[0]?.image || "/placeholder.svg?height=300&width=500"}
-                    alt="Project 1"
-                    className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg?height=300&width=500"
-                    }}
-                  />
-                  <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-black/80 to-transparent">
-                    <h4 className="text-white font-medium text-2xl mb-2">
-                      {userDetails?.projects?.[0]?.title || "Brand Identity"}
-                    </h4>
-                    <p className="text-white/80 mb-4">
-                      {userDetails?.projects?.[0]?.description || "Complete brand identity design for a tech startup"}
-                    </p>
-                    <Button variant="outline" className="w-fit text-white border-white hover:bg-white/20">
-                      View Project <ExternalLink className="ml-2" size={14} />
-                    </Button>
+                {localUserDetails?.projects?.map((project: any, index: number) => (
+                  <div key={index} className="group relative overflow-hidden rounded-xl shadow-sm">
+                    <img
+                      src={project.image || getPlaceholderImage(500, 300, project.title?.substring(0, 2))}
+                      alt={project.title || "Project"}
+                      className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        e.currentTarget.src = getPlaceholderImage(500, 300, project.title?.substring(0, 2))
+                      }}
+                    />
+                    <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-black/80 to-transparent">
+                      <h4 className="text-white font-medium text-2xl mb-2">
+                        {project.title || "Project Title"}
+                      </h4>
+                      <p className="text-white/80 mb-4">
+                        {project.description || "Project description"}
+                      </p>
+                      <Button variant="outline" className="w-fit text-white border-white hover:bg-white/20">
+                        View Project <ExternalLink className="ml-2" size={14} />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <div className="group relative overflow-hidden rounded-xl shadow-sm">
-                  <img
-                    src="/placeholder.svg?height=300&width=500"
-                    alt="Project 2"
-                    className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-black/80 to-transparent">
-                    <h4 className="text-white font-medium text-2xl mb-2">Mobile App Design</h4>
-                    <p className="text-white/80 mb-4">UX/UI design for a fitness tracking application</p>
-                    <Button variant="outline" className="w-fit text-white border-white hover:bg-white/20">
-                      View Project <ExternalLink className="ml-2" size={14} />
-                    </Button>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -478,7 +402,7 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
               </h2>
               <div className="w-24 h-1 mx-auto rounded-full" style={{ backgroundColor: secondaryColor }}></div>
               <p className="mt-4 text-gray-600 max-w-xl mx-auto">
-                Let's collaborate on your next project. Feel free to reach out through any of the channels below.
+                {localUserDetails?.contactMessage || "Let's collaborate on your next project. Feel free to reach out through any of the channels below."}
               </p>
             </div>
 
@@ -503,11 +427,11 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Email</div>
                     <a
-                      href="mailto:jane.smith@example.com"
+                      href={`mailto:${localUserDetails?.email || "your.email@example.com"}`}
                       className="font-medium text-lg hover:underline"
                       style={{ color: primaryColor }}
                     >
-                      jane.smith@example.com
+                      {localUserDetails?.email || "your.email@example.com"}
                     </a>
                   </div>
                 </div>
@@ -524,11 +448,11 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Phone</div>
                     <a
-                      href="tel:+15559876543"
+                      href={`tel:${localUserDetails?.phone || "+1234567890"}`}
                       className="font-medium text-lg hover:underline"
                       style={{ color: primaryColor }}
                     >
-                      +1 (555) 987-6543
+                      {localUserDetails?.phone || "+1 (234) 567-890"}
                     </a>
                   </div>
                 </div>
@@ -538,45 +462,57 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
                 Social Profiles
               </h3>
               <div className="flex flex-wrap gap-4">
-                <Link
-                  href="#"
-                  className="flex items-center space-x-3 p-4 rounded-xl transition-all hover:shadow-md"
-                  style={{ backgroundColor: primaryColor + "05" }}
-                >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: secondaryColor }}
+                {localUserDetails?.socialLinks?.github && (
+                  <Link
+                    href={localUserDetails.socialLinks.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 p-4 rounded-xl transition-all hover:shadow-md"
+                    style={{ backgroundColor: primaryColor + "05" }}
                   >
-                    <Github className="text-white" size={20} />
-                  </div>
-                  <span className="font-medium">GitHub</span>
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center space-x-3 p-4 rounded-xl transition-all hover:shadow-md"
-                  style={{ backgroundColor: primaryColor + "05" }}
-                >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: secondaryColor }}
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: secondaryColor }}
+                    >
+                      <Github className="text-white" size={20} />
+                    </div>
+                    <span className="font-medium">GitHub</span>
+                  </Link>
+                )}
+                {localUserDetails?.socialLinks?.linkedin && (
+                  <Link
+                    href={localUserDetails.socialLinks.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 p-4 rounded-xl transition-all hover:shadow-md"
+                    style={{ backgroundColor: primaryColor + "05" }}
                   >
-                    <Linkedin className="text-white" size={20} />
-                  </div>
-                  <span className="font-medium">LinkedIn</span>
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center space-x-3 p-4 rounded-xl transition-all hover:shadow-md"
-                  style={{ backgroundColor: primaryColor + "05" }}
-                >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: secondaryColor }}
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: secondaryColor }}
+                    >
+                      <Linkedin className="text-white" size={20} />
+                    </div>
+                    <span className="font-medium">LinkedIn</span>
+                  </Link>
+                )}
+                {localUserDetails?.socialLinks?.twitter && (
+                  <Link
+                    href={localUserDetails.socialLinks.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 p-4 rounded-xl transition-all hover:shadow-md"
+                    style={{ backgroundColor: primaryColor + "05" }}
                   >
-                    <Twitter className="text-white" size={20} />
-                  </div>
-                  <span className="font-medium">Twitter</span>
-                </Link>
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: secondaryColor }}
+                    >
+                      <Twitter className="text-white" size={20} />
+                    </div>
+                    <span className="font-medium">Twitter</span>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -586,21 +522,41 @@ export default function CreativePortfolio({ primaryColor, secondaryColor, userDe
       {/* Footer */}
       <footer className="py-8 bg-white border-t">
         <div className="container mx-auto px-6 text-center">
-          <p className="text-gray-600">© {new Date().getFullYear()} Jane Smith. All rights reserved.</p>
+          <p className="text-gray-600">© {new Date().getFullYear()} {localUserDetails?.name || "Your Name"}. All rights reserved.</p>
           <div className="flex justify-center space-x-4 mt-4">
-            <Link href="#" className="text-gray-400 hover:text-gray-600">
-              <Github size={18} />
-            </Link>
-            <Link href="#" className="text-gray-400 hover:text-gray-600">
-              <Linkedin size={18} />
-            </Link>
-            <Link href="#" className="text-gray-400 hover:text-gray-600">
-              <Twitter size={18} />
-            </Link>
+            {localUserDetails?.socialLinks?.github && (
+              <Link 
+                href={localUserDetails.socialLinks.github} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <Github size={18} />
+              </Link>
+            )}
+            {localUserDetails?.socialLinks?.linkedin && (
+              <Link 
+                href={localUserDetails.socialLinks.linkedin} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <Linkedin size={18} />
+              </Link>
+            )}
+            {localUserDetails?.socialLinks?.twitter && (
+              <Link 
+                href={localUserDetails.socialLinks.twitter} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <Twitter size={18} />
+              </Link>
+            )}
           </div>
         </div>
       </footer>
     </div>
   )
 }
-
