@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Github, Linkedin, Twitter, Mail, Phone, Menu, X, CheckCircle, ExternalLink } from "lucide-react"
@@ -63,7 +62,7 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="text-xl font-bold" style={{ color: primaryColor }}>
-              Robert Johnson
+              {userDetails?.name || "Your Name"}
             </div>
 
             {/* Mobile menu button */}
@@ -159,6 +158,7 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
       <main className="flex-grow">
         {/* Home Section */}
         <section
+          ref={homeRef}
           className="py-20"
           style={{
             backgroundColor: userDetails?.backgroundImage ? "transparent" : primaryColor,
@@ -172,23 +172,23 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row items-center">
               <div className="md:w-1/2 mb-10 md:mb-0">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">Robert Johnson</h1>
-                <p className="text-xl text-white/90 mb-8 max-w-md">Business Consultant & Strategic Advisor</p>
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">{userDetails?.name || "Your Name"}</h1>
+                <p className="text-xl text-white/90 mb-8 max-w-md">{userDetails?.title || "Your Professional Title"}</p>
                 <Button
                   onClick={() => scrollToSection(aboutRef, "about")}
                   className="text-white rounded-md px-6 py-3 text-lg"
                   style={{ backgroundColor: secondaryColor }}
                 >
-                  Learn More About My Services
+                  Learn More About Me
                 </Button>
               </div>
               <div className="md:w-1/2 flex justify-center">
                 <img
-                  src={userDetails?.profileImage || "/placeholder.svg?height=400&width=400"}
-                  alt="Robert Johnson"
+                  src={userDetails?.profileImage || `https://via.placeholder.com/400x400`}
+                  alt={userDetails?.name || "Profile Image"}
                   className="rounded-full w-64 h-64 object-cover border-4 border-white shadow-lg"
                   onError={(e) => {
-                    e.currentTarget.src = "/placeholder.svg?height=400&width=400"
+                    e.currentTarget.src = `https://via.placeholder.com/400x400`
                   }}
                 />
               </div>
@@ -199,48 +199,23 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
         <section className="py-16 bg-white">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: primaryColor }}>
-              Professional Services
+              My Skills
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-8 border rounded-lg hover:shadow-md transition-shadow">
-                <div
-                  className="w-14 h-14 rounded-lg flex items-center justify-center mb-6"
-                  style={{ backgroundColor: secondaryColor + "20" }}
-                >
-                  <CheckCircle size={28} style={{ color: secondaryColor }} />
+              {userDetails?.skills?.slice(0, 3).map((skill: string, index: number) => (
+                <div key={index} className="p-8 border rounded-lg hover:shadow-md transition-shadow">
+                  <div
+                    className="w-14 h-14 rounded-lg flex items-center justify-center mb-6"
+                    style={{ backgroundColor: secondaryColor + "20" }}
+                  >
+                    <CheckCircle size={28} style={{ color: secondaryColor }} />
+                  </div>
+                  <h3 className="text-xl font-medium mb-3">{skill}</h3>
+                  <p className="text-gray-600">
+                    {userDetails?.bio || "I have extensive experience in this area and can deliver high-quality results."}
+                  </p>
                 </div>
-                <h3 className="text-xl font-medium mb-3">Business Strategy</h3>
-                <p className="text-gray-600">
-                  Develop comprehensive business strategies to drive growth and achieve objectives. Tailored approaches
-                  for businesses of all sizes.
-                </p>
-              </div>
-              <div className="p-8 border rounded-lg hover:shadow-md transition-shadow">
-                <div
-                  className="w-14 h-14 rounded-lg flex items-center justify-center mb-6"
-                  style={{ backgroundColor: secondaryColor + "20" }}
-                >
-                  <CheckCircle size={28} style={{ color: secondaryColor }} />
-                </div>
-                <h3 className="text-xl font-medium mb-3">Financial Advisory</h3>
-                <p className="text-gray-600">
-                  Expert financial guidance to optimize resources and maximize profitability. Data-driven insights for
-                  informed decision making.
-                </p>
-              </div>
-              <div className="p-8 border rounded-lg hover:shadow-md transition-shadow">
-                <div
-                  className="w-14 h-14 rounded-lg flex items-center justify-center mb-6"
-                  style={{ backgroundColor: secondaryColor + "20" }}
-                >
-                  <CheckCircle size={28} style={{ color: secondaryColor }} />
-                </div>
-                <h3 className="text-xl font-medium mb-3">Market Analysis</h3>
-                <p className="text-gray-600">
-                  In-depth market research and competitive analysis to identify opportunities. Strategic positioning for
-                  market advantage.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </section>
@@ -259,9 +234,12 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
               <div className="flex flex-col md:flex-row gap-10 items-start bg-white p-8 rounded-lg shadow-sm">
                 <div className="md:w-1/3">
                   <img
-                    src="/placeholder.svg?height=400&width=300"
-                    alt="Robert Johnson"
+                    src={userDetails?.profileImage || `https://via.placeholder.com/400x300`}
+                    alt={userDetails?.name || "Profile Image"}
                     className="w-full rounded-lg shadow-sm"
+                    onError={(e) => {
+                      e.currentTarget.src = `https://via.placeholder.com/400x300`
+                    }}
                   />
                 </div>
                 <div className="md:w-2/3">
@@ -269,17 +247,7 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
                     Professional Background
                   </h3>
                   <div className="space-y-4 text-gray-700">
-                    <p>
-                      I'm a seasoned business consultant with over 15 years of experience helping companies optimize
-                      their operations, improve profitability, and achieve sustainable growth. My approach combines
-                      analytical rigor with practical business acumen to deliver tangible results.
-                    </p>
-                    <p>
-                      Having worked with organizations ranging from startups to Fortune 500 companies across various
-                      industries, I bring a wealth of knowledge and best practices to every engagement. My goal is to
-                      empower businesses to overcome challenges and capitalize on opportunities in today's dynamic
-                      market environment.
-                    </p>
+                    <p>{userDetails?.bio || "Add your professional bio here."}</p>
                   </div>
                 </div>
               </div>
@@ -292,196 +260,74 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                 <div className="bg-white p-8 rounded-lg shadow-sm">
                   <h4 className="font-medium text-lg mb-6" style={{ color: primaryColor }}>
-                    Core Competencies
+                    Technical Skills
                   </h4>
                   <ul className="space-y-4">
-                    <li className="flex items-start">
-                      <CheckCircle className="mr-3 flex-shrink-0 mt-1" size={18} style={{ color: secondaryColor }} />
-                      <div>
-                        <span className="font-medium">Strategic Planning & Execution</span>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Developing and implementing comprehensive business strategies aligned with organizational
-                          goals
-                        </p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="mr-3 flex-shrink-0 mt-1" size={18} style={{ color: secondaryColor }} />
-                      <div>
-                        <span className="font-medium">Financial Analysis & Modeling</span>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Creating detailed financial models to forecast outcomes and guide decision-making
-                        </p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="mr-3 flex-shrink-0 mt-1" size={18} style={{ color: secondaryColor }} />
-                      <div>
-                        <span className="font-medium">Market Research & Analysis</span>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Conducting thorough market research to identify trends, opportunities, and competitive
-                          advantages
-                        </p>
-                      </div>
-                    </li>
+                    {userDetails?.skills?.map((skill: string, index: number) => (
+                      <li key={index} className="flex items-start">
+                        <CheckCircle className="mr-3 flex-shrink-0 mt-1" size={18} style={{ color: secondaryColor }} />
+                        <div>
+                          <span className="font-medium">{skill}</span>
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 </div>
                 <div className="bg-white p-8 rounded-lg shadow-sm">
                   <h4 className="font-medium text-lg mb-6" style={{ color: primaryColor }}>
-                    Industry Expertise
+                    Professional Experience
                   </h4>
                   <ul className="space-y-4">
-                    <li className="flex items-start">
-                      <CheckCircle className="mr-3 flex-shrink-0 mt-1" size={18} style={{ color: secondaryColor }} />
-                      <div>
-                        <span className="font-medium">Financial Services</span>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Banking, insurance, investment management, and fintech
-                        </p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="mr-3 flex-shrink-0 mt-1" size={18} style={{ color: secondaryColor }} />
-                      <div>
-                        <span className="font-medium">Technology & SaaS</span>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Software development, cloud services, and technology implementation
-                        </p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="mr-3 flex-shrink-0 mt-1" size={18} style={{ color: secondaryColor }} />
-                      <div>
-                        <span className="font-medium">Healthcare & Pharmaceuticals</span>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Healthcare providers, medical technology, and pharmaceutical companies
-                        </p>
-                      </div>
-                    </li>
+                    {userDetails?.experience?.map((exp: any, index: number) => (
+                      <li key={index} className="flex items-start">
+                        <CheckCircle className="mr-3 flex-shrink-0 mt-1" size={18} style={{ color: secondaryColor }} />
+                        <div>
+                          <span className="font-medium">{exp.position}</span>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {exp.company} | {exp.period}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">{exp.description}</p>
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
 
               <div>
                 <h4 className="font-medium text-lg mb-6 text-center" style={{ color: primaryColor }}>
-                  Professional Experience
+                  Featured Projects
                 </h4>
-                <div className="space-y-6">
-                  <div className="p-6 bg-white rounded-lg shadow-sm">
-                    <div className="font-medium text-lg mb-1">Principal Consultant</div>
-                    <div
-                      className="text-sm mb-3 inline-block px-3 py-1 rounded-full"
-                      style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
-                    >
-                      Johnson Consulting Group | 2015 - Present
-                    </div>
-                    <p className="text-gray-700">
-                      Founded and lead a boutique consulting firm specializing in strategic advisory services for
-                      mid-market and enterprise clients. Oversee a team of consultants and manage key client
-                      relationships.
-                    </p>
-                  </div>
-                  <div className="p-6 bg-white rounded-lg shadow-sm">
-                    <div className="font-medium text-lg mb-1">Senior Management Consultant</div>
-                    <div
-                      className="text-sm mb-3 inline-block px-3 py-1 rounded-full"
-                      style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
-                    >
-                      Global Consulting Partners | 2010 - 2015
-                    </div>
-                    <p className="text-gray-700">
-                      Led strategic initiatives for Fortune 500 clients across multiple industries. Specialized in
-                      operational efficiency, cost reduction, and growth strategies.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="max-w-5xl mx-auto">
-              <h3 className="text-2xl font-semibold mb-8 text-center" style={{ color: secondaryColor }}>
-                Featured Projects
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white rounded-lg overflow-hidden shadow-sm">
-                  <div className="p-4" style={{ backgroundColor: primaryColor }}>
-                    <h4 className="text-white font-medium text-lg">
-                      {userDetails?.projects?.[0]?.title || "Financial Services Transformation"}
-                    </h4>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-gray-700 mb-4">
-                      {userDetails?.projects?.[0]?.description ||
-                        "Led a comprehensive digital transformation initiative for a leading financial services firm, resulting in 30% cost reduction and improved customer satisfaction scores."}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {userDetails?.projects?.[0]?.tags?.map((tag: any, index: any) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 rounded-full text-sm"
-                          style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {userDetails?.projects?.map((project: any, index: number) => (
+                    <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm">
+                      <div className="p-4" style={{ backgroundColor: primaryColor }}>
+                        <h4 className="text-white font-medium text-lg">{project.title}</h4>
+                      </div>
+                      <div className="p-6">
+                        <p className="text-gray-700 mb-4">{project.description}</p>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {project.tags?.map((tag: string, tagIndex: number) => (
+                            <span
+                              key={tagIndex}
+                              className="px-3 py-1 rounded-full text-sm"
+                              style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          style={{ borderColor: primaryColor, color: primaryColor }}
                         >
-                          {tag}
-                        </span>
-                      )) || (
-                        <>
-                          <span
-                            className="px-3 py-1 rounded-full text-sm"
-                            style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
-                          >
-                            Digital Transformation
-                          </span>
-                          <span
-                            className="px-3 py-1 rounded-full text-sm"
-                            style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
-                          >
-                            Financial Services
-                          </span>
-                        </>
-                      )}
+                          View Project <ExternalLink className="ml-2" size={14} />
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      style={{ borderColor: primaryColor, color: primaryColor }}
-                    >
-                      View Case Study <ExternalLink className="ml-2" size={14} />
-                    </Button>
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg overflow-hidden shadow-sm">
-                  <div className="p-4" style={{ backgroundColor: primaryColor }}>
-                    <h4 className="text-white font-medium text-lg">Healthcare Supply Chain Optimization</h4>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-gray-700 mb-4">
-                      Redesigned the supply chain operations for a healthcare provider network, achieving $15M in annual
-                      savings and improving inventory management efficiency.
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <span
-                        className="px-3 py-1 rounded-full text-sm"
-                        style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
-                      >
-                        Supply Chain
-                      </span>
-                      <span
-                        className="px-3 py-1 rounded-full text-sm"
-                        style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
-                      >
-                        Healthcare
-                      </span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      style={{ borderColor: primaryColor, color: primaryColor }}
-                    >
-                      View Case Study <ExternalLink className="ml-2" size={14} />
-                    </Button>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -497,7 +343,7 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
               </h2>
               <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: secondaryColor }}></div>
               <p className="mt-4 text-gray-600 max-w-xl mx-auto">
-                Ready to transform your business? Get in touch to discuss how I can help you achieve your goals.
+                {userDetails?.bio || "Ready to collaborate? Get in touch to discuss potential opportunities."}
               </p>
             </div>
 
@@ -512,13 +358,13 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
                   </div>
                   <div>
                     <h3 className="font-medium text-lg mb-2">Email Address</h3>
-                    <p className="text-gray-500 mb-3">For inquiries and consultations</p>
+                    <p className="text-gray-500 mb-3">For inquiries and collaborations</p>
                     <a
-                      href="mailto:robert.johnson@example.com"
+                      href={`mailto:${userDetails?.email || "your.email@example.com"}`}
                       className="font-medium text-lg"
                       style={{ color: secondaryColor }}
                     >
-                      robert.johnson@example.com
+                      {userDetails?.email || "your.email@example.com"}
                     </a>
                   </div>
                 </div>
@@ -532,8 +378,12 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
                   <div>
                     <h3 className="font-medium text-lg mb-2">Phone Number</h3>
                     <p className="text-gray-500 mb-3">Available during business hours</p>
-                    <a href="tel:+15551234567" className="font-medium text-lg" style={{ color: secondaryColor }}>
-                      +1 (555) 123-4567
+                    <a
+                      href={`tel:${userDetails?.phone || "+1234567890"}`}
+                      className="font-medium text-lg"
+                      style={{ color: secondaryColor }}
+                    >
+                      {userDetails?.phone || "+1 (234) 567-890"}
                     </a>
                   </div>
                 </div>
@@ -543,27 +393,39 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
                 Professional Networks
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Link
-                  href="#"
-                  className="p-6 border rounded-lg flex items-center space-x-4 hover:shadow-md transition-all"
-                >
-                  <Linkedin size={24} style={{ color: primaryColor }} />
-                  <span className="font-medium">LinkedIn</span>
-                </Link>
-                <Link
-                  href="#"
-                  className="p-6 border rounded-lg flex items-center space-x-4 hover:shadow-md transition-all"
-                >
-                  <Twitter size={24} style={{ color: primaryColor }} />
-                  <span className="font-medium">Twitter</span>
-                </Link>
-                <Link
-                  href="#"
-                  className="p-6 border rounded-lg flex items-center space-x-4 hover:shadow-md transition-all"
-                >
-                  <Github size={24} style={{ color: primaryColor }} />
-                  <span className="font-medium">GitHub</span>
-                </Link>
+                {userDetails?.socialLinks?.linkedin && (
+                  <Link
+                    href={userDetails.socialLinks.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-6 border rounded-lg flex items-center space-x-4 hover:shadow-md transition-all"
+                  >
+                    <Linkedin size={24} style={{ color: primaryColor }} />
+                    <span className="font-medium">LinkedIn</span>
+                  </Link>
+                )}
+                {userDetails?.socialLinks?.twitter && (
+                  <Link
+                    href={userDetails.socialLinks.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-6 border rounded-lg flex items-center space-x-4 hover:shadow-md transition-all"
+                  >
+                    <Twitter size={24} style={{ color: primaryColor }} />
+                    <span className="font-medium">Twitter</span>
+                  </Link>
+                )}
+                {userDetails?.socialLinks?.github && (
+                  <Link
+                    href={userDetails.socialLinks.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-6 border rounded-lg flex items-center space-x-4 hover:shadow-md transition-all"
+                  >
+                    <Github size={24} style={{ color: primaryColor }} />
+                    <span className="font-medium">GitHub</span>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -575,27 +437,47 @@ export default function CorporatePortfolio({ primaryColor, secondaryColor, userD
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
-              <div className="font-bold text-xl mb-2">Robert Johnson</div>
-              <p className="text-white/80">Business Consultant & Strategic Advisor</p>
+              <div className="font-bold text-xl mb-2">{userDetails?.name || "Your Name"}</div>
+              <p className="text-white/80">{userDetails?.title || "Your Professional Title"}</p>
             </div>
             <div className="flex space-x-6">
-              <Link href="#" className="text-white/80 hover:text-white transition-colors">
-                <Linkedin size={20} />
-              </Link>
-              <Link href="#" className="text-white/80 hover:text-white transition-colors">
-                <Twitter size={20} />
-              </Link>
-              <Link href="#" className="text-white/80 hover:text-white transition-colors">
-                <Github size={20} />
-              </Link>
+              {userDetails?.socialLinks?.linkedin && (
+                <Link
+                  href={userDetails.socialLinks.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <Linkedin size={20} />
+                </Link>
+              )}
+              {userDetails?.socialLinks?.twitter && (
+                <Link
+                  href={userDetails.socialLinks.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <Twitter size={20} />
+                </Link>
+              )}
+              {userDetails?.socialLinks?.github && (
+                <Link
+                  href={userDetails.socialLinks.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <Github size={20} />
+                </Link>
+              )}
             </div>
           </div>
           <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
-            © {new Date().getFullYear()} Robert Johnson. All rights reserved.
+            © {new Date().getFullYear()} {userDetails?.name || "Your Name"}. All rights reserved.
           </div>
         </div>
       </footer>
     </div>
   )
 }
-
