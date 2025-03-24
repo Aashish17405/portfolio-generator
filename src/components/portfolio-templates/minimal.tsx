@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Github, Linkedin, Twitter, Mail, Phone, Menu, X, ExternalLink } from "lucide-react"
@@ -18,12 +17,30 @@ interface MinimalPortfolioProps {
 export default function MinimalPortfolio({ primaryColor, secondaryColor, userDetails }: MinimalPortfolioProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("home")
+  const [localUserDetails, setLocalUserDetails] = useState<UserDetails | null>(null)
   const router = useRouter()
 
   // Refs for scrolling
   const homeRef = useRef<HTMLDivElement>(null)
   const aboutRef = useRef<HTMLDivElement>(null)
   const contactRef = useRef<HTMLDivElement>(null)
+
+  // Load user details from localStorage if not passed as props
+  useEffect(() => {
+    if (userDetails) {
+      setLocalUserDetails(userDetails)
+    } else {
+      const savedUserDetails = localStorage.getItem("userDetails")
+      if (savedUserDetails) {
+        try {
+          const parsedDetails = JSON.parse(savedUserDetails)
+          setLocalUserDetails(parsedDetails)
+        } catch (e) {
+          console.error("Error parsing user details:", e)
+        }
+      }
+    }
+  }, [userDetails])
 
   // Function to scroll to section
   const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>, section: string) => {
@@ -51,7 +68,7 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
   }, [])
 
   // Default user details if none provided
-  const user = userDetails || {
+  const user = localUserDetails || {
     name: "John Doe",
     title: "Web Developer",
     email: "john.doe@example.com",
@@ -99,11 +116,27 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
     },
   }
 
+  // Helper function to get placeholder image URL
+  const getPlaceholderImage = (width: number, height: number, text?: string) => {
+    const initials = user?.name 
+      ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+      : 'ME'
+    return `https://via.placeholder.com/${width}x${height}/${primaryColor.substring(1)}/ffffff?text=${text || initials}`
+  }
+
   // Create CSS variables for the selected colors
   const cssVariables = {
     "--primary-color": primaryColor,
     "--secondary-color": secondaryColor,
   } as React.CSSProperties
+
+  if (!localUserDetails && !userDetails) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: primaryColor }}></div>
+      </div>
+    )
+  }
 
   return (
     <div style={cssVariables} className="min-h-screen flex flex-col font-sans">
@@ -269,9 +302,13 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                     style={{ backgroundColor: secondaryColor + "30" }}
                   ></div>
                   <img
-                    src={user.profileImage || "/placeholder.svg?height=400&width=400"}
+                    src={user.profileImage || getPlaceholderImage(400, 400)}
                     alt={user.name}
                     className="relative z-10 rounded-full w-64 h-64 md:w-80 md:h-80 object-cover border-4 border-white shadow-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.src = getPlaceholderImage(400, 400)
+                    }}
                   />
                 </div>
               </div>
@@ -317,7 +354,7 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                     Technical Skills
                   </h3>
                   <ul className="space-y-3">
-                    {user.skills.map((skill: any, index: any) => (
+                    {user.skills.map((skill: string, index: number) => (
                       <li key={index} className="flex items-center">
                         <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: secondaryColor }}></div>
                         <span>{skill}</span>
@@ -333,64 +370,22 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                     >
                       03
                     </span>
-                    Soft Skills
+                    Work Experience
                   </h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-center">
-                      <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: secondaryColor }}></div>
-                      <span>Problem Solving</span>
-                    </li>
-                    <li className="flex items-center">
-                      <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: secondaryColor }}></div>
-                      <span>Communication</span>
-                    </li>
-                    <li className="flex items-center">
-                      <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: secondaryColor }}></div>
-                      <span>Time Management</span>
-                    </li>
-                    <li className="flex items-center">
-                      <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: secondaryColor }}></div>
-                      <span>Teamwork</span>
-                    </li>
-                    <li className="flex items-center">
-                      <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: secondaryColor }}></div>
-                      <span>Adaptability</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm p-8 mb-12">
-                <h3 className="text-xl font-semibold mb-6 inline-flex items-center" style={{ color: secondaryColor }}>
-                  <span
-                    className="w-8 h-8 rounded-full mr-3 flex items-center justify-center text-white text-sm"
-                    style={{ backgroundColor: secondaryColor }}
-                  >
-                    04
-                  </span>
-                  Work Experience
-                </h3>
-                <div className="space-y-8">
-                  {user.experience.map((exp: any, index: any) => (
-                    <div
-                      key={index}
-                      className="relative pl-8 border-l-2"
-                      style={{ borderColor: secondaryColor + "50" }}
-                    >
-                      <div
-                        className="absolute left-[-8px] top-0 w-4 h-4 rounded-full"
-                        style={{ backgroundColor: secondaryColor }}
-                      ></div>
-                      <div className="mb-1 font-medium text-lg">{exp.position}</div>
-                      <div
-                        className="text-sm mb-2 inline-block px-3 py-1 rounded-full"
-                        style={{ backgroundColor: secondaryColor + "15", color: secondaryColor }}
-                      >
-                        {exp.company} | {exp.period}
+                  <div className="space-y-4">
+                    {user.experience.map((exp: any, index: number) => (
+                      <div key={index}>
+                        <div className="font-medium">{exp.position}</div>
+                        <div
+                          className="text-sm mb-1 inline-block px-2 py-1 rounded-full"
+                          style={{ backgroundColor: secondaryColor + "15", color: secondaryColor }}
+                        >
+                          {exp.company} | {exp.period}
+                        </div>
+                        <p className="text-gray-600 text-sm">{exp.description}</p>
                       </div>
-                      <p className="text-gray-600">{exp.description}</p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -406,16 +401,20 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {user.projects.map((project: any, index: any) => (
+                {user.projects.map((project: any, index: number) => (
                   <div
                     key={index}
                     className="group bg-white rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-md"
                   >
                     <div className="relative overflow-hidden h-48">
                       <img
-                        src={project.image || "/placeholder.svg?height=200&width=400"}
+                        src={project.image || getPlaceholderImage(400, 200, project.title?.substring(0, 2))}
                         alt={project.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = getPlaceholderImage(400, 200, project.title?.substring(0, 2))
+                        }}
                       />
                       <div
                         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
@@ -429,7 +428,7 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                     <div className="p-6">
                       <h4 className="font-medium text-lg mb-2">{project.title}</h4>
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {project.tags.map((tag: any, tagIndex: any) => (
+                        {project.tags.map((tag: string, tagIndex: number) => (
                           <span
                             key={tagIndex}
                             className="text-sm px-2 py-1 rounded-full"
@@ -479,7 +478,10 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                     </div>
                     <div>
                       <h3 className="font-medium mb-1">Email</h3>
-                      <a href={`mailto:${user.email}`} className="text-gray-600 hover:underline">
+                      <a 
+                        href={`mailto:${user.email}`} 
+                        className="text-gray-600 hover:underline"
+                      >
                         {user.email}
                       </a>
                     </div>
@@ -493,7 +495,10 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                     </div>
                     <div>
                       <h3 className="font-medium mb-1">Phone</h3>
-                      <a href={`tel:${user.phone}`} className="text-gray-600 hover:underline">
+                      <a 
+                        href={`tel:${user.phone}`} 
+                        className="text-gray-600 hover:underline"
+                      >
                         {user.phone}
                       </a>
                     </div>
@@ -507,6 +512,8 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                   {user.socialLinks.github && (
                     <Link
                       href={user.socialLinks.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <Github style={{ color: primaryColor }} />
@@ -516,6 +523,8 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                   {user.socialLinks.linkedin && (
                     <Link
                       href={user.socialLinks.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <Linkedin style={{ color: primaryColor }} />
@@ -525,6 +534,8 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
                   {user.socialLinks.twitter && (
                     <Link
                       href={user.socialLinks.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <Twitter style={{ color: primaryColor }} />
@@ -546,17 +557,32 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
           </p>
           <div className="flex justify-center space-x-4 mt-4">
             {user.socialLinks.github && (
-              <Link href={user.socialLinks.github} className="text-gray-400 hover:text-gray-600">
+              <Link 
+                href={user.socialLinks.github} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <Github size={18} />
               </Link>
             )}
             {user.socialLinks.linkedin && (
-              <Link href={user.socialLinks.linkedin} className="text-gray-400 hover:text-gray-600">
+              <Link 
+                href={user.socialLinks.linkedin} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <Linkedin size={18} />
               </Link>
             )}
             {user.socialLinks.twitter && (
-              <Link href={user.socialLinks.twitter} className="text-gray-400 hover:text-gray-600">
+              <Link 
+                href={user.socialLinks.twitter} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <Twitter size={18} />
               </Link>
             )}
@@ -566,4 +592,3 @@ export default function MinimalPortfolio({ primaryColor, secondaryColor, userDet
     </div>
   )
 }
-
