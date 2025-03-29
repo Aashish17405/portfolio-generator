@@ -1,47 +1,47 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
 
-export const useLocalStorage = <T,>(
-  key: string, 
-  initialValue: T
-): [T, (value: T | ((prev: T) => T)) => void] => {
-  const [isClient, setIsClient] = useState(false);
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
+export function useLocalStorage<T>(key: string, initialValue: T) {
+  const isBrowser = typeof window !== "undefined"
 
-  // Ensure this only runs on client-side
-  useEffect(() => {
-    setIsClient(true);
-    
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    if (!isBrowser) return initialValue // Prevent running on the server
+
     try {
-      const item = window.localStorage.getItem(key);
-      if (item) {
-        const parsedItem = JSON.parse(item);
-        setStoredValue(parsedItem);
+      const item = window.localStorage.getItem(key)
+      return item ? (JSON.parse(item) as T) : initialValue
+    } catch (error) {
+      console.error(error)
+      return initialValue
+    }
+  })
+
+  const setValue = (value: T | ((val: T) => T)) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value
+      setStoredValue(valueToStore)
+      if (isBrowser) {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore))
       }
     } catch (error) {
-      console.error('Error reading from localStorage:', error);
+      console.error(error)
     }
-  }, [key]);
+  }
 
-  const setValue = (value: T | ((prev: T) => T)) => {
-    if (!isClient) return;
+  useEffect(() => {
+    if (!isBrowser) return
 
     try {
-      const valueToStore = value instanceof Function 
-        ? value(storedValue) 
-        : value;
-      
-      setStoredValue(valueToStore);
-      
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      const item = window.localStorage.getItem(key)
+      const parsedItem = item ? (JSON.parse(item) as T) : initialValue
+      if (parsedItem !== storedValue) {
+        setStoredValue(parsedItem)
+      }
     } catch (error) {
-      console.error('Error writing to localStorage:', error);
+      console.error(error)
     }
-  };
+  }, [key])
 
-  return [
-    isClient ? storedValue : initialValue, 
-    setValue
-  ];
-};
+  return [storedValue, setValue] as const
+}

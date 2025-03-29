@@ -1,70 +1,40 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { defaultUserDetailsData } from "@/utils/defaultUserDetailsData";
-import { UserDetails } from "@/components/user-details-form";
+import { useState, useEffect } from "react"
+import type { UserDetails } from "@/components/user-details-form"
+import { defaultUserDetailsData } from "@/utils/defaultUserDetailsData"
 
-export const useUserDetails = () => {
-  const [userDetails, setUserDetails] = useState<UserDetails>(defaultUserDetailsData);
-  const [isLoading, setIsLoading] = useState(true);
+export function useUserDetails() {
+  const [userDetails, setUserDetails] = useState<UserDetails>(defaultUserDetailsData)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Only run on client side after mount
-    if (typeof window !== "undefined") {
-      const savedDetails = localStorage.getItem("userDetails");
-      
-      if (savedDetails) {
-        try {
-          const parsedDetails = JSON.parse(savedDetails) as UserDetails;
-          
-          // Validate and sanitize the loaded data
-          const validatedDetails: UserDetails = {
-            ...defaultUserDetailsData,
-            ...parsedDetails,
-            profileImage: isValidImageData(parsedDetails.profileImage) 
-              ? parsedDetails.profileImage 
-              : defaultUserDetailsData.profileImage,
-            backgroundImage: isValidImageData(parsedDetails.backgroundImage)
-              ? parsedDetails.backgroundImage
-              : defaultUserDetailsData.backgroundImage,
-            projects: parsedDetails.projects?.map(project => ({
-              ...project,
-              image: isValidImageData(project.image) 
-                ? project.image 
-                : ""
-            })) ?? defaultUserDetailsData.projects
-          };
-
-          setUserDetails(validatedDetails);
-        } catch (error) {
-          console.error("Failed to parse user details:", error);
-          // Fall back to defaults if parsing fails
-          setUserDetails(defaultUserDetailsData);
-        }
+    try {
+      const savedUserDetails = localStorage.getItem("userDetails")
+      if (savedUserDetails) {
+        const parsedDetails = JSON.parse(savedUserDetails)
+        setUserDetails(parsedDetails)
       }
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Error loading user details:", error)
+    } finally {
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
 
-  // Helper function to validate image data
-  const isValidImageData = (image?: string) => {
-    return image && image.startsWith("data:image/");
-  };
-
-  // Save to localStorage whenever userDetails changes
-  useEffect(() => {
-    if (typeof window !== "undefined" && !isLoading) {
-      try {
-        localStorage.setItem("userDetails", JSON.stringify(userDetails));
-      } catch (error) {
-        console.error("Failed to save user details:", error);
-      }
+  const updateUserDetails = (details: UserDetails) => {
+    setUserDetails(details)
+    try {
+      localStorage.setItem("userDetails", JSON.stringify(details))
+    } catch (error) {
+      console.error("Error saving user details:", error)
     }
-  }, [userDetails, isLoading]);
+  }
 
   return {
     userDetails,
-    setUserDetails,
-    isLoading
-  };
-};
+    setUserDetails: updateUserDetails,
+    isLoading,
+  }
+}
+

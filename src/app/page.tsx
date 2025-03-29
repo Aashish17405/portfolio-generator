@@ -1,98 +1,179 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, Check, Layout, ChevronLeft, UserCircle2 } from "lucide-react"
+import Link from "next/link"
+import { ArrowRight, Check, Palette, Layout, Sparkles, ChevronLeft, UserCircle2, Layers } from "lucide-react"
 import PortfolioPreview from "@/components/portfolio-preview"
 import { motion } from "@/components/motion"
 import ColorSchemeCard from "@/components/color-scheme-card"
 import UserDetailsForm, { type UserDetails } from "@/components/user-details-form"
 import { useToast, ToastContainer } from "@/components/ui-improvements"
-import { useRouter } from "next/navigation"
+import { PageLayoutSettings } from "@/components/page-layout-settings"
 import { portfolioStylesData } from "@/utils/portfolioStylesData"
 import { colorCombinationsData } from "@/utils/colorCombinationsData"
-import { PortfolioConfig, Step } from "@/utils/types"
+import { type PortfolioConfig, type PageConfig, type SectionConfig, DEFAULT_PAGES } from "@/utils/types"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
-import { ProgressSteps } from "@/components/progress-steps"
 import { useUserDetails } from "@/hooks/useUserDetails"
 
+// Default sections configuration
+const DEFAULT_SECTIONS: SectionConfig[] = [
+  // Home page sections
+  { id: "hero", name: "Hero Banner", enabled: true, pageId: "home" },
+  { id: "intro", name: "Brief Introduction", enabled: true, pageId: "home" },
+  { id: "featured", name: "Featured Projects", enabled: true, pageId: "home" },
 
-const PortfolioBuilder = () => {
-  const { toasts, showToast, removeToast } = useToast();
-  const router = useRouter();
-  const { userDetails } = useUserDetails();
-  
-  const [portfolioConfig, setPortfolioConfig] = useLocalStorage<PortfolioConfig>(
-    'portfolioConfig',
-    {
-      style: portfolioStylesData[0].id,
-      colorCombo: colorCombinationsData[0].id,
-      userDetails
+  // About page sections
+  { id: "bio", name: "Biography", enabled: true, pageId: "about" },
+  { id: "background", name: "Professional Background", enabled: true, pageId: "about" },
+  { id: "education", name: "Education", enabled: true, pageId: "about" },
+
+  // Experience page sections
+  { id: "work", name: "Work History", enabled: true, pageId: "experience" },
+  { id: "achievements", name: "Key Achievements", enabled: true, pageId: "experience" },
+
+  // Projects page sections
+  { id: "projects-gallery", name: "Projects Gallery", enabled: true, pageId: "projects" },
+  { id: "case-studies", name: "Case Studies", enabled: true, pageId: "projects" },
+
+  // Skills page sections
+  { id: "technical", name: "Technical Skills", enabled: true, pageId: "skills" },
+  { id: "soft", name: "Soft Skills", enabled: true, pageId: "skills" },
+  { id: "tools", name: "Tools & Technologies", enabled: true, pageId: "skills" },
+
+  // Contact page sections
+  { id: "contact-info", name: "Contact Information", enabled: true, pageId: "contact" },
+  { id: "contact-form", name: "Contact Form", enabled: true, pageId: "contact" },
+  { id: "social", name: "Social Links", enabled: true, pageId: "contact" },
+]
+
+export default function Home() {
+  const { toasts, showToast, removeToast } = useToast()
+  const { userDetails, setUserDetails, isLoading } = useUserDetails()
+
+  const [activeStep, setActiveStep] = useState(1)
+  const [isGenerated, setIsGenerated] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+
+  // Portfolio configuration state
+  const [portfolioConfig, setPortfolioConfig] = useLocalStorage<PortfolioConfig>("portfolioConfig", {
+    style: portfolioStylesData[0].id,
+    colorCombo: colorCombinationsData[0].id,
+    userDetails,
+    pages: DEFAULT_PAGES,
+  })
+
+  // Pages and sections state
+  const [pages, setPages] = useLocalStorage<PageConfig[]>("portfolioPages", DEFAULT_PAGES)
+  const [sections, setSections] = useLocalStorage<SectionConfig[]>("portfolioSections", DEFAULT_SECTIONS)
+
+  // Get the selected color combination
+  const selectedCombo =
+    colorCombinationsData.find((combo) => combo.id === portfolioConfig.colorCombo) || colorCombinationsData[0]
+  const selectedStyleObj =
+    portfolioStylesData.find((style) => style.id === portfolioConfig.style) || portfolioStylesData[0]
+
+  useEffect(() => {
+    // Check if there's a previously generated portfolio
+    const portfolioStyle = localStorage.getItem("portfolioStyle")
+    const primaryColor = localStorage.getItem("primaryColor")
+    const secondaryColor = localStorage.getItem("secondaryColor")
+
+    if (portfolioStyle && primaryColor && secondaryColor) {
+      // Find the matching color combination
+      const combo = colorCombinationsData.find(
+        (c) => c.primaryColor === primaryColor && c.secondaryColor === secondaryColor,
+      )
+
+      if (combo) {
+        setPortfolioConfig((prev) => ({
+          ...prev,
+          style: portfolioStyle,
+          colorCombo: combo.id,
+        }))
+      }
+
+      setIsGenerated(true)
     }
-  );
-  
-  const [activeStep, setActiveStep] = useState<Step>(1);
+  }, [])
 
-  // Derived values
-  const selectedCombo = colorCombinationsData.find(c => c.id === portfolioConfig.colorCombo) ?? colorCombinationsData[0];
-  const selectedStyleObj = portfolioStylesData.find(s => s.id === portfolioConfig.style) ?? portfolioStylesData[0];
-
-  const navigateToStep = (step: Step) => {
-    if (step < 1 || step > 4) return;
-    
-    // Validate before allowing navigation forward
-    if (step > activeStep) {
-      if (activeStep === 1 && !portfolioConfig.style) {
-        showToast("Please select a portfolio style first", "info");
-        return;
-      }
-      if (activeStep === 2 && !portfolioConfig.colorCombo) {
-        showToast("Please select a color scheme first", "info");
-        return;
-      }
-      if (activeStep === 3 && !portfolioConfig.userDetails.name) {
-        showToast("Please fill in your details first", "info");
-        return;
-      }
+  // Update portfolio config when user details change
+  useEffect(() => {
+    if (!isLoading) {
+      setPortfolioConfig((prev) => ({
+        ...prev,
+        userDetails,
+      }))
     }
-    
-    setActiveStep(step);
-  };
+  }, [userDetails, isLoading])
 
-  const handleStyleSelect = (styleId: string) => {
-    setPortfolioConfig(prev => ({ ...prev, style: styleId }));
-    navigateToStep(2);
-  };
+  const handleStyleSelect = (style: string) => {
+    setPortfolioConfig((prev) => ({
+      ...prev,
+      style,
+    }))
+    setActiveStep(2)
+  }
 
   const handleColorSelect = (colorId: string) => {
-    setPortfolioConfig(prev => ({ ...prev, colorCombo: colorId }));
-    navigateToStep(3);
-  };
+    setPortfolioConfig((prev) => ({
+      ...prev,
+      colorCombo: colorId,
+    }))
+
+    // Only advance to step 3 if this is the first time selecting a color
+    if (activeStep === 2) {
+      setActiveStep(3)
+    }
+  }
 
   const handleUserDetailsSave = (details: UserDetails) => {
-    setPortfolioConfig(prev => ({ ...prev, userDetails: details }));
-    navigateToStep(4);
-    showToast("Your details have been saved successfully!", "success");
-  };
+    setUserDetails(details)
+    setActiveStep(4)
+    setShowPreview(true)
+    showToast("Your details have been saved successfully!", "success")
+  }
+
+  const handlePagesChange = (updatedPages: PageConfig[]) => {
+    setPages(updatedPages)
+    setPortfolioConfig((prev) => ({
+      ...prev,
+      pages: updatedPages,
+    }))
+  }
+
+  const handleSectionsChange = (updatedSections: SectionConfig[]) => {
+    setSections(updatedSections)
+  }
 
   const handleGenerate = () => {
-    const { style, colorCombo, userDetails } = portfolioConfig;
-    
-    try {
-      localStorage.setItem("portfolioStyle", style);
-      localStorage.setItem("primaryColor", selectedCombo.primaryColor);
-      localStorage.setItem("secondaryColor", selectedCombo.secondaryColor);
-      localStorage.setItem("colorComboName", selectedCombo.name);
-      localStorage.setItem("userDetails", JSON.stringify(userDetails));
+    // Find the selected color combination
+    const colorCombo = colorCombinationsData.find((combo) => combo.id === portfolioConfig.colorCombo)
 
-      router.push("/portfolio");
-      showToast("Your portfolio has been generated successfully!", "success");
-    } catch (error) {
-      console.error("Failed to save portfolio:", error);
-      showToast("Error generating portfolio. Please try again.", "error");
+    if (!colorCombo) {
+      console.error("Selected color combination not found")
+      showToast("Error generating portfolio. Please try again.", "error")
+      return
     }
-  };
+
+    // Store the selected style and colors in localStorage
+    localStorage.setItem("portfolioStyle", portfolioConfig.style)
+    localStorage.setItem("primaryColor", colorCombo.primaryColor)
+    localStorage.setItem("secondaryColor", colorCombo.secondaryColor)
+    localStorage.setItem("colorComboName", colorCombo.name)
+    localStorage.setItem("portfolioPages", JSON.stringify(pages))
+    localStorage.setItem("portfolioSections", JSON.stringify(sections))
+
+    setIsGenerated(true)
+    showToast("Your portfolio has been generated successfully!", "success")
+  }
+
+  const navigateToStep = (step: number) => {
+    if (step >= 1 && step <= 5) {
+      setActiveStep(step)
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -108,11 +189,111 @@ const PortfolioBuilder = () => {
               Portfolio Website Builder
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Create your professional portfolio in minutes with our easy-to-use builder.
+              Create your professional portfolio in minutes with our easy-to-use builder. Select a style, choose colors,
+              add your details, and you're ready to go!
             </p>
           </motion.div>
 
-          <ProgressSteps activeStep={activeStep} navigateToStep={navigateToStep} />
+          {/* Progress steps */}
+          <div className="flex items-center justify-center mb-10">
+            <div className="flex flex-wrap items-center justify-center">
+              <button
+                onClick={() => navigateToStep(1)}
+                className={`flex flex-col items-center group ${activeStep >= 1 ? "cursor-pointer" : "cursor-not-allowed"}`}
+              >
+                <div
+                  className={`flex items-center justify-center w-14 h-14 rounded-full ${
+                    activeStep >= 1 ? "bg-primary text-white" : "bg-gray-200 text-gray-500"
+                  } font-medium transition-all duration-300 group-hover:shadow-md`}
+                >
+                  <Layout size={24} />
+                </div>
+                <span className={`mt-2 text-sm font-medium ${activeStep >= 1 ? "text-primary" : "text-gray-500"}`}>
+                  Choose Style
+                </span>
+              </button>
+
+              <div
+                className={`h-1 w-10 md:w-16 ${activeStep >= 2 ? "bg-primary" : "bg-gray-200"} mx-2 md:mx-4 transition-colors duration-300`}
+              ></div>
+
+              <button
+                onClick={() => navigateToStep(2)}
+                className={`flex flex-col items-center group ${activeStep >= 2 ? "cursor-pointer" : "cursor-not-allowed"}`}
+              >
+                <div
+                  className={`flex items-center justify-center w-14 h-14 rounded-full ${
+                    activeStep >= 2 ? "bg-primary text-white" : "bg-gray-200 text-gray-500"
+                  } font-medium transition-all duration-300 group-hover:shadow-md`}
+                >
+                  <Palette size={24} />
+                </div>
+                <span className={`mt-2 text-sm font-medium ${activeStep >= 2 ? "text-primary" : "text-gray-500"}`}>
+                  Select Colors
+                </span>
+              </button>
+
+              <div
+                className={`h-1 w-10 md:w-16 ${activeStep >= 3 ? "bg-primary" : "bg-gray-200"} mx-2 md:mx-4 transition-colors duration-300`}
+              ></div>
+
+              <button
+                onClick={() => navigateToStep(3)}
+                className={`flex flex-col items-center group ${activeStep >= 3 ? "cursor-pointer" : "cursor-not-allowed"}`}
+              >
+                <div
+                  className={`flex items-center justify-center w-14 h-14 rounded-full ${
+                    activeStep >= 3 ? "bg-primary text-white" : "bg-gray-200 text-gray-500"
+                  } font-medium transition-all duration-300 group-hover:shadow-md`}
+                >
+                  <UserCircle2 size={24} />
+                </div>
+                <span className={`mt-2 text-sm font-medium ${activeStep >= 3 ? "text-primary" : "text-gray-500"}`}>
+                  Your Details
+                </span>
+              </button>
+
+              <div
+                className={`h-1 w-10 md:w-16 ${activeStep >= 4 ? "bg-primary" : "bg-gray-200"} mx-2 md:mx-4 transition-colors duration-300`}
+              ></div>
+
+              <button
+                onClick={() => navigateToStep(4)}
+                className={`flex flex-col items-center group ${activeStep >= 4 ? "cursor-pointer" : "cursor-not-allowed"}`}
+              >
+                <div
+                  className={`flex items-center justify-center w-14 h-14 rounded-full ${
+                    activeStep >= 4 ? "bg-primary text-white" : "bg-gray-200 text-gray-500"
+                  } font-medium transition-all duration-300 group-hover:shadow-md`}
+                >
+                  <Layers size={24} />
+                </div>
+                <span className={`mt-2 text-sm font-medium ${activeStep >= 4 ? "text-primary" : "text-gray-500"}`}>
+                  Pages
+                </span>
+              </button>
+
+              <div
+                className={`h-1 w-10 md:w-16 ${activeStep >= 5 ? "bg-primary" : "bg-gray-200"} mx-2 md:mx-4 transition-colors duration-300`}
+              ></div>
+
+              <button
+                onClick={() => navigateToStep(5)}
+                className={`flex flex-col items-center group ${activeStep >= 5 ? "cursor-pointer" : "cursor-not-allowed"}`}
+              >
+                <div
+                  className={`flex items-center justify-center w-14 h-14 rounded-full ${
+                    activeStep >= 5 ? "bg-primary text-white" : "bg-gray-200 text-gray-500"
+                  } font-medium transition-all duration-300 group-hover:shadow-md`}
+                >
+                  <Sparkles size={24} />
+                </div>
+                <span className={`mt-2 text-sm font-medium ${activeStep >= 5 ? "text-primary" : "text-gray-500"}`}>
+                  Generate
+                </span>
+              </button>
+            </div>
+          </div>
 
           {/* Step 1: Choose Style */}
           <motion.div
@@ -124,11 +305,12 @@ const PortfolioBuilder = () => {
             <div className="bg-white rounded-xl shadow-md p-8 mb-8 border border-gray-100">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-800">Choose Your Portfolio Style</h2>
-                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Step 1 of 4</div>
+                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Step 1 of 5</div>
               </div>
 
               <p className="text-gray-600 mb-8">
-                Select a style that best represents your professional identity.
+                Select a style that best represents your professional identity. Each style is designed to showcase your
+                work in a unique way.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -139,10 +321,11 @@ const PortfolioBuilder = () => {
                       whileTap={{ scale: 0.98 }}
                       transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       onClick={() => handleStyleSelect(style.id)}
-                      className="cursor-pointer h-full"
+                      className={`cursor-pointer h-full`}
                     >
                       <Card
-                        className={`overflow-hidden transition-all duration-300 h-full ${
+                        className={`overflow-hidden transition-all duration-300 h-full
+                        ${
                           portfolioConfig.style === style.id
                             ? "ring-2 ring-primary shadow-lg scale-[1.02]"
                             : "border-gray-200 hover:border-primary/30 hover:shadow-md"
@@ -179,9 +362,9 @@ const PortfolioBuilder = () => {
               </div>
 
               <div className="flex justify-end mt-8">
-                <Button 
-                  onClick={() => navigateToStep(2)} 
-                  className="rounded-full px-6 group" 
+                <Button
+                  onClick={() => navigateToStep(2)}
+                  className="rounded-full px-6 group"
                   disabled={!portfolioConfig.style}
                 >
                   Continue to Colors
@@ -201,11 +384,12 @@ const PortfolioBuilder = () => {
             <div className="bg-white rounded-xl shadow-md p-8 mb-8 border border-gray-100">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-800">Choose Your Color Scheme</h2>
-                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Step 2 of 4</div>
+                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Step 2 of 5</div>
               </div>
 
               <p className="text-gray-600 mb-8">
-                Select a color scheme that reflects your personal brand.
+                Select a color scheme that reflects your personal brand. Colors play a crucial role in how visitors
+                perceive your portfolio.
               </p>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -226,11 +410,7 @@ const PortfolioBuilder = () => {
               </div>
 
               <div className="flex justify-between mt-8">
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigateToStep(1)} 
-                  className="rounded-full px-6 group"
-                >
+                <Button variant="outline" onClick={() => navigateToStep(1)} className="rounded-full px-6 group">
                   <ChevronLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={18} />
                   Back to Styles
                 </Button>
@@ -256,24 +436,18 @@ const PortfolioBuilder = () => {
             <div className="bg-white rounded-xl shadow-md p-8 mb-8 border border-gray-100">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-800">Enter Your Details</h2>
-                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Step 3 of 4</div>
+                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Step 3 of 5</div>
               </div>
 
               <p className="text-gray-600 mb-8">
-                Fill in your professional information to personalize your portfolio.
+                Fill in your professional information to personalize your portfolio. This information will be displayed
+                on your portfolio website.
               </p>
 
-              <UserDetailsForm 
-                onSave={handleUserDetailsSave} 
-                initialData={portfolioConfig.userDetails} 
-              />
+              <UserDetailsForm onSave={handleUserDetailsSave} initialData={userDetails} />
 
               <div className="flex justify-between mt-8">
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigateToStep(2)} 
-                  className="rounded-full px-6 group"
-                >
+                <Button variant="outline" onClick={() => navigateToStep(2)} className="rounded-full px-6 group">
                   <ChevronLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={18} />
                   Back to Colors
                 </Button>
@@ -281,7 +455,7 @@ const PortfolioBuilder = () => {
             </div>
           </motion.div>
 
-          {/* Step 4: Preview and Generate */}
+          {/* Step 4: Page Layout */}
           <motion.div
             className={`${activeStep === 4 ? "block" : "hidden"}`}
             initial={{ opacity: 0 }}
@@ -289,13 +463,42 @@ const PortfolioBuilder = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="bg-white rounded-xl shadow-md p-8 mb-8 border border-gray-100">
+              <PageLayoutSettings
+                pages={pages}
+                sections={sections}
+                onPagesChange={handlePagesChange}
+                onSectionsChange={handleSectionsChange}
+              />
+
+              <div className="flex justify-between mt-8">
+                <Button variant="outline" onClick={() => navigateToStep(3)} className="rounded-full px-6 group">
+                  <ChevronLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={18} />
+                  Back to Your Details
+                </Button>
+                <Button onClick={() => navigateToStep(5)} className="rounded-full px-6 group">
+                  Continue to Preview
+                  <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Step 5: Preview and Generate */}
+          <motion.div
+            className={`${activeStep === 5 ? "block" : "hidden"}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="bg-white rounded-xl shadow-md p-8 mb-8 border border-gray-100">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-800">Preview Your Portfolio</h2>
-                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Step 4 of 4</div>
+                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Step 5 of 5</div>
               </div>
 
               <p className="text-gray-600 mb-8">
-                Here's a preview of how your portfolio will look.
+                Here's a preview of how your portfolio will look. If you're happy with it, click "Generate Portfolio" to
+                create your site.
               </p>
 
               <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-8">
@@ -316,7 +519,7 @@ const PortfolioBuilder = () => {
                           primaryColor={selectedCombo.primaryColor}
                           secondaryColor={selectedCombo.secondaryColor}
                           fullPreview={true}
-                          userDetails={portfolioConfig.userDetails}
+                          userDetails={userDetails}
                         />
                       </div>
                     </div>
@@ -361,20 +564,28 @@ const PortfolioBuilder = () => {
                               <UserCircle2 size={20} className="text-primary" />
                             </div>
                             <div>
-                              <p className="font-medium">{portfolioConfig.userDetails.name}</p>
-                              <p className="text-xs text-gray-500">{portfolioConfig.userDetails.title}</p>
+                              <p className="font-medium">{userDetails.name}</p>
+                              <p className="text-xs text-gray-500">{userDetails.title}</p>
                             </div>
                           </div>
                         </div>
 
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500 mb-2">Pages</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {pages
+                              .filter((p) => p.enabled)
+                              .map((page) => (
+                                <div key={page.id} className="text-xs bg-gray-100 px-2 py-1 rounded-full">
+                                  {page.name}
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+
                         <div className="pt-4 border-t border-gray-100">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => navigateToStep(3)} 
-                            className="w-full"
-                          >
-                            Edit Your Details
+                          <Button variant="outline" size="sm" onClick={() => navigateToStep(4)} className="w-full">
+                            Edit Pages
                           </Button>
                         </div>
                       </div>
@@ -384,13 +595,9 @@ const PortfolioBuilder = () => {
               </div>
 
               <div className="flex justify-between">
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigateToStep(3)} 
-                  className="rounded-full px-6 group"
-                >
+                <Button variant="outline" onClick={() => navigateToStep(4)} className="rounded-full px-6 group">
                   <ChevronLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={18} />
-                  Back to Your Details
+                  Back to Pages
                 </Button>
                 <Button
                   onClick={handleGenerate}
@@ -403,11 +610,40 @@ const PortfolioBuilder = () => {
               </div>
             </div>
           </motion.div>
+
+          {/* Success Message */}
+          {isGenerated && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100 p-8 rounded-xl text-center shadow-md"
+            >
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-6">
+                <Check size={32} />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 text-green-800">Your portfolio is ready!</h3>
+              <p className="text-gray-600 mb-8 max-w-lg mx-auto">
+                Your portfolio has been generated with the{" "}
+                <span className="font-semibold">{selectedStyleObj.name}</span> style and{" "}
+                <span className="font-semibold">{selectedCombo.name}</span> color scheme. Click below to view your new
+                portfolio.
+              </p>
+              <Link href="/portfolio">
+                <Button
+                  size="lg"
+                  className="rounded-full px-10 py-6 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
+                >
+                  <span className="mr-2">View Your Portfolio</span>
+                  <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+                </Button>
+              </Link>
+            </motion.div>
+          )}
         </div>
       </div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </main>
-  );
-};
+  )
+}
 
-export default PortfolioBuilder;

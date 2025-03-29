@@ -174,7 +174,7 @@ export default function PortfolioPreview({
                       Skills
                     </h3>
                     <ul className="space-y-2">
-                      {user.skills.slice(0, 5).map((skill: any, index: any) => (
+                      {user.skills.slice(0, 5).map((skill, index) => (
                         <li key={index} className="flex items-center">
                           <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: secondaryColor }}></div>
                           <span>{skill}</span>
@@ -186,7 +186,7 @@ export default function PortfolioPreview({
                     <h3 className="text-lg font-medium mb-3" style={{ color: secondaryColor }}>
                       Experience
                     </h3>
-                    {user.experience.slice(0, 1).map((exp: any, index: any) => (
+                    {user.experience.slice(0, 1).map((exp, index) => (
                       <div key={index}>
                         <div className="font-medium">{exp.position}</div>
                         <div className="text-sm text-gray-500 mb-1">
@@ -334,7 +334,7 @@ export default function PortfolioPreview({
                       Design Skills
                     </h3>
                     <div className="space-y-4">
-                      {user.skills.slice(0, 3).map((skill: any, index: any) => (
+                      {user.skills.slice(0, 3).map((skill, index) => (
                         <div key={index}>
                           <div className="flex justify-between mb-1">
                             <span className="text-sm">{skill}</span>
@@ -356,7 +356,7 @@ export default function PortfolioPreview({
                     <h3 className="text-lg font-medium mb-4" style={{ color: secondaryColor }}>
                       Experience
                     </h3>
-                    {user.experience.slice(0, 1).map((exp: any, index: any) => (
+                    {user.experience.slice(0, 1).map((exp, index) => (
                       <div key={index} className="mb-4">
                         <div className="font-medium">{exp.position}</div>
                         <div
@@ -506,7 +506,7 @@ export default function PortfolioPreview({
                 </h2>
 
                 <div className="grid grid-cols-3 gap-4">
-                  {user.skills.slice(0, 3).map((skill: any, index: any) => (
+                  {user.skills.slice(0, 3).map((skill, index) => (
                     <div key={index} className="p-4 border rounded-lg">
                       <div
                         className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"

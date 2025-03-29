@@ -47,4 +47,4 @@ export const colorCombinationsData = [
     secondaryColor: "#f56565",
     preview: "linear-gradient(to right, #742a2a, #f56565)",
   },
-]
+];

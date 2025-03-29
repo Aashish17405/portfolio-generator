@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Github, Linkedin, Twitter, Mail, Phone, User, Briefcase, FileText, Image } from "lucide-react"
+import { Github, Linkedin, Twitter, Mail, Phone, User, Briefcase, FileText, Image, X } from "lucide-react"
 import { motion } from "@/components/motion"
 
 // Import and use the new ImageUpload component for better UX
 // Add the import at the top
-import ImageUpload from "@/components/image-upload"
+// import ImageUpload from "@/components/image-upload" // Removed ImageUpload import
 
 // Update the UserDetails interface to include image fields
 export interface UserDetails {
@@ -447,9 +447,9 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
             <Input
               placeholder="Add a skill (e.g., JavaScript)"
               value={skillInput}
-              onChange={(e: { target: { value: React.SetStateAction<string> } }) => setSkillInput(e.target.value)}
+              onChange={(e) => setSkillInput(e.target.value)}
               className="rounded-r-none"
-              onKeyDown={(e: { key: string; preventDefault: () => void }) => {
+              onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault()
                   addSkill()
@@ -520,53 +520,97 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
       {/* Images Tab */}
       <div className={activeTab === "images" ? "block" : "hidden"}>
         <div className="space-y-8">
-          {/* Replace the profile image section with the new component */}
+          {/* Replace the image upload sections with URL input fields */}
+          {/* Update the profileImage section */}
           <div>
-            <Label className="block mb-3">Profile Image</Label>
+            <Label className="block mb-3">Profile Image URL</Label>
             <div className="flex flex-col md:flex-row gap-6 items-start">
               <div className="w-full md:w-1/3">
-                <ImageUpload
-                  id="profileImage"
-                  value={userDetails.profileImage || ""}
-                  onChange={(value: any) => setUserDetails((prev) => ({ ...prev, profileImage: value }))}
-                  onRemove={() => removeImage("profileImage")}
-                  aspectRatio="square"
-                  description="Upload a professional profile photo"
-                />
+                {userDetails.profileImage ? (
+                  <div className="relative rounded-lg overflow-hidden w-full aspect-square bg-gray-100 shadow-sm">
+                    <img
+                      src={userDetails.profileImage || "/placeholder.svg?height=300&width=300"}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg?height=300&width=300"
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setUserDetails((prev) => ({ ...prev, profileImage: "" }))}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center w-full aspect-square flex flex-col items-center justify-center hover:border-primary/50 transition-colors">
+                    <Image size={32} className="text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-500">Enter a URL for your profile image</p>
+                  </div>
+                )}
               </div>
               <div className="w-full md:w-2/3 space-y-4">
+                <Input
+                  type="url"
+                  placeholder="https://example.com/your-profile-image.jpg"
+                  value={userDetails.profileImage}
+                  onChange={(e) => setUserDetails((prev) => ({ ...prev, profileImage: e.target.value }))}
+                  className="w-full"
+                />
                 <p className="text-sm text-gray-600">
-                  Upload a professional profile photo. This will be displayed prominently on your portfolio.
+                  Enter the URL of your professional profile photo. This will be displayed prominently on your
+                  portfolio.
                 </p>
-                <p className="text-xs text-gray-500">
-                  Recommended: Square image, at least 500x500 pixels. Maximum size: 2MB.
-                </p>
+                <p className="text-xs text-gray-500">Recommended: Square image, at least 500x500 pixels.</p>
               </div>
             </div>
           </div>
 
-          {/* Replace the background image section with the new component */}
+          {/* Update the background image section */}
           <div>
-            <Label className="block mb-3">Background/Hero Image (Optional)</Label>
+            <Label className="block mb-3">Background/Hero Image URL (Optional)</Label>
             <div className="flex flex-col md:flex-row gap-6 items-start">
               <div className="w-full md:w-1/2">
-                <ImageUpload
-                  id="backgroundImage"
-                  value={userDetails.backgroundImage || ""}
-                  onChange={(value: any) => setUserDetails((prev) => ({ ...prev, backgroundImage: value }))}
-                  onRemove={() => removeImage("backgroundImage")}
-                  aspectRatio="video"
-                  description="Upload a background image for your hero section"
-                />
+                {userDetails.backgroundImage ? (
+                  <div className="relative rounded-lg overflow-hidden w-full aspect-video bg-gray-100 shadow-sm">
+                    <img
+                      src={userDetails.backgroundImage || "/placeholder.svg?height=300&width=600"}
+                      alt="Background"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg?height=300&width=600"
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setUserDetails((prev) => ({ ...prev, backgroundImage: "" }))}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center w-full aspect-video flex flex-col items-center justify-center hover:border-primary/50 transition-colors">
+                    <Image size={32} className="text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-500">Enter a URL for your background image</p>
+                  </div>
+                )}
               </div>
               <div className="w-full md:w-1/2 space-y-4">
+                <Input
+                  type="url"
+                  placeholder="https://example.com/your-background-image.jpg"
+                  value={userDetails.backgroundImage}
+                  onChange={(e) => setUserDetails((prev) => ({ ...prev, backgroundImage: e.target.value }))}
+                  className="w-full"
+                />
                 <p className="text-sm text-gray-600">
-                  Upload a background image for your portfolio's hero section. This is optional but can add visual
-                  appeal.
+                  Enter the URL of a background image for your portfolio's hero section. This is optional but can add
+                  visual appeal.
                 </p>
-                <p className="text-xs text-gray-500">
-                  Recommended: Wide image, at least 1600x900 pixels. Maximum size: 2MB.
-                </p>
+                <p className="text-xs text-gray-500">Recommended: Wide image, at least 1600x900 pixels.</p>
               </div>
             </div>
           </div>
@@ -598,7 +642,7 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
                     id={`position-${index}`}
                     placeholder="Senior Developer"
                     value={exp.position}
-                    onChange={(e: { target: { value: string } }) => updateExperience(index, "position", e.target.value)}
+                    onChange={(e) => updateExperience(index, "position", e.target.value)}
                     required
                   />
                 </div>
@@ -609,7 +653,7 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
                     id={`company-${index}`}
                     placeholder="Acme Inc."
                     value={exp.company}
-                    onChange={(e: { target: { value: string } }) => updateExperience(index, "company", e.target.value)}
+                    onChange={(e) => updateExperience(index, "company", e.target.value)}
                     required
                   />
                 </div>
@@ -621,7 +665,7 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
                   id={`period-${index}`}
                   placeholder="2020 - Present"
                   value={exp.period}
-                  onChange={(e: { target: { value: string } }) => updateExperience(index, "period", e.target.value)}
+                  onChange={(e) => updateExperience(index, "period", e.target.value)}
                   required
                 />
               </div>
@@ -633,7 +677,7 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
                   placeholder="Describe your responsibilities and achievements..."
                   rows={3}
                   value={exp.description}
-                  onChange={(e: { target: { value: string } }) => updateExperience(index, "description", e.target.value)}
+                  onChange={(e) => updateExperience(index, "description", e.target.value)}
                   required
                 />
               </div>
@@ -670,7 +714,7 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
                   id={`project-title-${index}`}
                   placeholder="E-commerce Platform"
                   value={project.title}
-                  onChange={(e: { target: { value: string } }) => updateProject(index, "title", e.target.value)}
+                  onChange={(e) => updateProject(index, "title", e.target.value)}
                   required
                 />
               </div>
@@ -682,42 +726,75 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
                   placeholder="Describe the project, your role, and technologies used..."
                   rows={3}
                   value={project.description}
-                  onChange={(e: { target: { value: string } }) => updateProject(index, "description", e.target.value)}
+                  onChange={(e) => updateProject(index, "description", e.target.value)}
                   required
                 />
               </div>
 
               {/* Replace the project image section with the new component */}
+              {/* Update the project image section in the projects map function */}
               <div className="mb-4">
-                <Label className="block mb-2">Project Image</Label>
+                <Label className="block mb-2">Project Image URL</Label>
                 <div className="flex flex-col sm:flex-row gap-4 items-start">
                   <div className="w-full sm:w-1/3">
-                    <ImageUpload
-                      id={`project-image-${index}`}
-                      value={project.image || ""}
-                      onChange={(value: any) => {
+                    {project.image ? (
+                      <div className="relative rounded-lg overflow-hidden w-full aspect-video bg-gray-100 shadow-sm">
+                        <img
+                          src={project.image || "/placeholder.svg?height=200&width=400"}
+                          alt={project.title || "Project"}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg?height=200&width=400"
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedProjects = [...userDetails.projects]
+                            updatedProjects[index] = {
+                              ...updatedProjects[index],
+                              image: "",
+                            }
+                            setUserDetails((prev) => ({
+                              ...prev,
+                              projects: updatedProjects,
+                            }))
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center w-full aspect-video flex flex-col items-center justify-center hover:border-primary/50 transition-colors">
+                        <Image size={24} className="text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-500">Enter a URL for your project image</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="w-full sm:w-2/3">
+                    <Input
+                      type="url"
+                      placeholder="https://example.com/your-project-image.jpg"
+                      value={project.image}
+                      onChange={(e) => {
                         const updatedProjects = [...userDetails.projects]
                         updatedProjects[index] = {
                           ...updatedProjects[index],
-                          image: value,
+                          image: e.target.value,
                         }
                         setUserDetails((prev) => ({
                           ...prev,
                           projects: updatedProjects,
                         }))
                       }}
-                      onRemove={() => removeImage("image", index)}
-                      aspectRatio="video"
-                      size="sm"
-                      description="Upload a project screenshot"
+                      className="w-full mb-2"
                     />
-                  </div>
-                  <div className="w-full sm:w-2/3">
                     <p className="text-sm text-gray-600">
-                      Add a screenshot or image that showcases this project. This will help visitors understand your
-                      work at a glance.
+                      Add a URL to an image that showcases this project. This will help visitors understand your work at
+                      a glance.
                     </p>
-                    <p className="text-xs text-gray-500 mt-2">Recommended: 16:9 ratio image. Maximum size: 2MB.</p>
+                    <p className="text-xs text-gray-500 mt-2">Recommended: 16:9 ratio image.</p>
                   </div>
                 </div>
               </div>
@@ -728,7 +805,7 @@ export default function UserDetailsForm({ onSave, initialData = defaultUserDetai
                   <Input
                     placeholder="Add a tag (e.g., React)"
                     className="rounded-r-none"
-                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                    onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault()
                         addProjectTag(index, (e.target as HTMLInputElement).value)
