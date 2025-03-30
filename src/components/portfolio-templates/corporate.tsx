@@ -1,24 +1,33 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { Button } from "@/components/ui/button"
-import { Github, Linkedin, Twitter, Mail, Phone, CheckCircle, ExternalLink, Menu } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import type { PageConfig } from "@/utils/types"
+import type React from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Github,
+  Linkedin,
+  Twitter,
+  Mail,
+  Phone,
+  CheckCircle,
+  ExternalLink,
+  Menu,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { PageConfig } from "@/utils/types";
 
 interface CorporatePortfolioProps {
-  primaryColor: string
-  secondaryColor: string
-  userDetails?: any
-  currentPage?: string
-  pages?: PageConfig[]
+  primaryColor: string;
+  secondaryColor: string;
+  userDetails?: any;
+  currentPage?: string;
+  pages?: PageConfig[];
 }
 
 // Function to generate placeholder images
 const getPlaceholderImage = (width: number, height: number) => {
-  return `https://via.placeholder.com/${width}x${height}`
-}
+  return `https://via.placeholder.com/${width}x${height}`;
+};
 
 export default function CorporatePortfolio({
   primaryColor,
@@ -27,40 +36,47 @@ export default function CorporatePortfolio({
   currentPage = "home",
   pages = [],
 }: CorporatePortfolioProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   // Create CSS variables for the selected colors
   const cssVariables = {
     "--primary-color": primaryColor,
     "--secondary-color": secondaryColor,
-  } as React.CSSProperties
+  } as React.CSSProperties;
+
+  // Helper function to get placeholder image URL
+  const getPlaceholderImage = (width: number, height: number) => {
+    return `/placeholder.svg?height=${height}&width=${width}`;
+  };
 
   // Render the appropriate page content based on currentPage
   const renderPageContent = () => {
     switch (currentPage) {
       case "home":
-        return renderHomePage()
+        return renderHomePage();
       case "about":
-        return renderAboutPage()
+        return renderAboutPage();
       case "experience":
-        return renderExperiencePage()
+        return renderExperiencePage();
       case "projects":
-        return renderProjectsPage()
+        return renderProjectsPage();
       case "skills":
-        return renderSkillsPage()
+        return renderSkillsPage();
       case "contact":
-        return renderContactPage()
+        return renderContactPage();
       default:
-        return renderHomePage()
+        return renderHomePage();
     }
-  }
+  };
 
   // Home page content
   const renderHomePage = () => (
     <section
       className="py-20"
       style={{
-        backgroundColor: userDetails?.backgroundImage ? "transparent" : primaryColor,
+        backgroundColor: userDetails?.backgroundImage
+          ? "transparent"
+          : primaryColor,
         backgroundImage: userDetails?.backgroundImage
           ? `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${userDetails.backgroundImage})`
           : "none",
@@ -71,19 +87,33 @@ export default function CorporatePortfolio({
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">{userDetails?.name || "Your Name"}</h1>
-            <p className="text-xl text-white/90 mb-8 max-w-md">{userDetails?.title || "Your Professional Title"}</p>
-            <Link href="/portfolio/about">
-              <Button
-                className="text-white rounded-md px-6 py-3 text-lg"
-                style={{
-                  backgroundColor: secondaryColor,
-                  boxShadow: "0 4px 14px rgba(0, 0, 0, 0.1)",
-                }}
-              >
-                Learn More About Me
-              </Button>
-            </Link>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
+              {userDetails?.name || "Your Name"}
+            </h1>
+            <p className="text-xl text-white/90 mb-8 max-w-md">
+              {userDetails?.title || "Your Professional Title"}
+            </p>
+            <div className="flex gap-4">
+              <Link href="/portfolio/about">
+                <Button
+                  className="text-white text-sm rounded-md px-6 py-3 hover:cursor-pointer"
+                  style={{
+                    backgroundColor: secondaryColor,
+                    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  Learn More About Me
+                </Button>
+              </Link>
+              <Link href="/portfolio/contact">
+                <Button
+                  variant="outline"
+                  className="rounded-md px-6 py-3 text-lg text-gray-900 text-sm border-white hover:bg-white/10 hover:cursor-pointer"
+                >
+                  Contact Me
+                </Button>
+              </Link>
+            </div>
           </div>
           <div className="md:w-1/2 flex justify-center">
             <img
@@ -91,40 +121,52 @@ export default function CorporatePortfolio({
               alt={userDetails?.name || "Profile Image"}
               className="rounded-full w-64 h-64 object-cover border-4 border-white shadow-lg"
               onError={(e) => {
-                e.currentTarget.src = getPlaceholderImage(400, 400)
+                e.currentTarget.src = getPlaceholderImage(400, 400);
               }}
             />
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 
   // About page content
   const renderAboutPage = () => (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: primaryColor }}>
+          <h2
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ color: primaryColor }}
+          >
             About Me
           </h2>
-          <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: secondaryColor }}></div>
+          <div
+            className="w-20 h-1 mx-auto rounded-full"
+            style={{ backgroundColor: secondaryColor }}
+          ></div>
         </div>
 
         <div className="max-w-5xl mx-auto mb-16">
           <div className="flex flex-col md:flex-row gap-10 items-start bg-white p-8 rounded-lg shadow-sm">
             <div className="md:w-1/3">
               <img
-                src={userDetails?.profileImage || `https://via.placeholder.com/400x300`}
+                src={
+                  userDetails?.profileImage ||
+                  `https://via.placeholder.com/400x300`
+                }
                 alt={userDetails?.name || "Profile Image"}
-                className="w-full rounded-lg shadow-sm"
+                className="w-full h-[300px] rounded-lg shadow-sm object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = `https://via.placeholder.com/400x300`
+                  e.currentTarget.src = `https://via.placeholder.com/400x300`;
                 }}
               />
             </div>
             <div className="md:w-2/3">
-              <h3 className="text-2xl font-semibold mb-4" style={{ color: secondaryColor }}>
+              <h3
+                className="text-2xl font-semibold mb-4"
+                style={{ color: secondaryColor }}
+              >
                 Professional Background
               </h3>
               <div className="space-y-4 text-gray-700">
@@ -135,59 +177,84 @@ export default function CorporatePortfolio({
         </div>
       </div>
     </section>
-  )
+  );
 
   // Experience page content
   const renderExperiencePage = () => (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: primaryColor }}>
+          <h2
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ color: primaryColor }}
+          >
             Professional Experience
           </h2>
-          <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: secondaryColor }}></div>
+          <div
+            className="w-20 h-1 mx-auto rounded-full"
+            style={{ backgroundColor: secondaryColor }}
+          ></div>
         </div>
 
         <div className="max-w-4xl mx-auto">
           <div className="space-y-8">
             {userDetails?.experience?.map((exp: any, index: number) => (
-              <div key={index} className="p-6 bg-white rounded-lg shadow-sm border border-gray-100">
+              <div
+                key={index}
+                className="p-6 bg-white rounded-lg shadow-sm border border-gray-100"
+              >
                 <div className="font-medium text-xl mb-1">{exp.position}</div>
                 <div
                   className="text-sm mb-3 inline-block px-3 py-1 rounded-full"
-                  style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
+                  style={{
+                    backgroundColor: secondaryColor + "20",
+                    color: secondaryColor,
+                  }}
                 >
                   {exp.company} | {exp.period}
                 </div>
                 <p className="text-gray-700">{exp.description}</p>
               </div>
             ))}
-            {(!userDetails?.experience || userDetails.experience.length === 0) && (
+            {(!userDetails?.experience ||
+              userDetails.experience.length === 0) && (
               <div className="text-center py-10 text-gray-500">
-                <p>No experience entries found. Add your professional experience in the builder.</p>
+                <p>
+                  No experience entries found. Add your professional experience
+                  in the builder.
+                </p>
               </div>
             )}
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 
   // Projects page content
   const renderProjectsPage = () => (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: primaryColor }}>
+          <h2
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ color: primaryColor }}
+          >
             Featured Projects
           </h2>
-          <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: secondaryColor }}></div>
+          <div
+            className="w-20 h-1 mx-auto rounded-full"
+            style={{ backgroundColor: secondaryColor }}
+          ></div>
         </div>
 
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {userDetails?.projects?.map((project: any, index: number) => (
-              <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm">
+              <div
+                key={index}
+                className="bg-white rounded-lg overflow-hidden shadow-sm"
+              >
                 {project.image && (
                   <div className="h-48 overflow-hidden">
                     <img
@@ -195,13 +262,15 @@ export default function CorporatePortfolio({
                       alt={project.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.currentTarget.src = getPlaceholderImage(600, 400)
+                        e.currentTarget.src = getPlaceholderImage(600, 400);
                       }}
                     />
                   </div>
                 )}
                 <div className="p-4" style={{ backgroundColor: primaryColor }}>
-                  <h4 className="text-white font-medium text-lg">{project.title}</h4>
+                  <h4 className="text-white font-medium text-lg">
+                    {project.title}
+                  </h4>
                 </div>
                 <div className="p-6">
                   <p className="text-gray-700 mb-4">{project.description}</p>
@@ -210,16 +279,19 @@ export default function CorporatePortfolio({
                       <span
                         key={tagIndex}
                         className="px-3 py-1 rounded-full text-sm"
-                        style={{ backgroundColor: secondaryColor + "20", color: secondaryColor }}
+                        style={{
+                          backgroundColor: secondaryColor + "20",
+                          color: secondaryColor,
+                        }}
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <Button
+                  {/* <Button
                     variant="outline"
                     size="sm"
-                    className="w-full"
+                    className="w-full hover:cursor-pointer"
                     style={{
                       borderColor: primaryColor,
                       color: primaryColor,
@@ -227,7 +299,7 @@ export default function CorporatePortfolio({
                     }}
                   >
                     View Project <ExternalLink className="ml-2" size={14} />
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             ))}
@@ -240,23 +312,32 @@ export default function CorporatePortfolio({
         </div>
       </div>
     </section>
-  )
+  );
 
   // Skills page content
   const renderSkillsPage = () => (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: primaryColor }}>
+          <h2
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ color: primaryColor }}
+          >
             Skills & Expertise
           </h2>
-          <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: secondaryColor }}></div>
+          <div
+            className="w-20 h-1 mx-auto rounded-full"
+            style={{ backgroundColor: secondaryColor }}
+          ></div>
         </div>
 
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {userDetails?.skills?.map((skill: string, index: number) => (
-              <div key={index} className="p-8 border rounded-lg hover:shadow-md transition-shadow">
+              <div
+                key={index}
+                className="p-8 border rounded-lg hover:shadow-md transition-shadow"
+              >
                 <div
                   className="w-14 h-14 rounded-lg flex items-center justify-center mb-6"
                   style={{ backgroundColor: secondaryColor + "20" }}
@@ -279,17 +360,23 @@ export default function CorporatePortfolio({
         </div>
       </div>
     </section>
-  )
+  );
 
   // Contact page content
   const renderContactPage = () => (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: primaryColor }}>
+          <h2
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ color: primaryColor }}
+          >
             Contact Information
           </h2>
-          <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: secondaryColor }}></div>
+          <div
+            className="w-20 h-1 mx-auto rounded-full"
+            style={{ backgroundColor: secondaryColor }}
+          ></div>
           <p className="mt-4 text-gray-600 max-w-xl mx-auto">
             {userDetails?.bio?.substring(0, 150) ||
               "Ready to collaborate? Get in touch to discuss potential opportunities."}
@@ -307,9 +394,13 @@ export default function CorporatePortfolio({
               </div>
               <div>
                 <h3 className="font-medium text-lg mb-2">Email Address</h3>
-                <p className="text-gray-500 mb-3">For inquiries and collaborations</p>
+                <p className="text-gray-500 mb-3">
+                  For inquiries and collaborations
+                </p>
                 <a
-                  href={`mailto:${userDetails?.email || "your.email@example.com"}`}
+                  href={`mailto:${
+                    userDetails?.email || "your.email@example.com"
+                  }`}
                   className="font-medium text-lg"
                   style={{ color: secondaryColor }}
                 >
@@ -326,7 +417,9 @@ export default function CorporatePortfolio({
               </div>
               <div>
                 <h3 className="font-medium text-lg mb-2">Phone Number</h3>
-                <p className="text-gray-500 mb-3">Available during business hours</p>
+                <p className="text-gray-500 mb-3">
+                  Available during business hours
+                </p>
                 <a
                   href={`tel:${userDetails?.phone || "+1234567890"}`}
                   className="font-medium text-lg"
@@ -338,7 +431,10 @@ export default function CorporatePortfolio({
             </div>
           </div>
 
-          <h3 className="text-xl font-semibold mb-6 text-center" style={{ color: secondaryColor }}>
+          <h3
+            className="text-xl font-semibold mb-6 text-center"
+            style={{ color: secondaryColor }}
+          >
             Professional Networks
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -379,14 +475,17 @@ export default function CorporatePortfolio({
               !userDetails?.socialLinks?.twitter &&
               !userDetails?.socialLinks?.github && (
                 <div className="text-center py-10 text-gray-500 col-span-3">
-                  <p>No social links found. Add your social profiles in the builder.</p>
+                  <p>
+                    No social links found. Add your social profiles in the
+                    builder.
+                  </p>
                 </div>
               )}
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 
   return (
     <div style={cssVariables} className="min-h-screen flex flex-col font-sans">
@@ -407,9 +506,13 @@ export default function CorporatePortfolio({
                     key={page.id}
                     href={`/portfolio/${page.id}`}
                     className={`py-2 px-1 relative transition-colors ${
-                      currentPage === page.id ? "font-medium" : "text-gray-600 hover:text-gray-900"
+                      currentPage === page.id
+                        ? "font-medium"
+                        : "text-gray-600 hover:text-gray-900"
                     }`}
-                    style={{ color: currentPage === page.id ? primaryColor : undefined }}
+                    style={{
+                      color: currentPage === page.id ? primaryColor : undefined,
+                    }}
                   >
                     {page.name}
                     {currentPage === page.id && (
@@ -422,7 +525,12 @@ export default function CorporatePortfolio({
                 ))}
             </nav>
             <div className="hidden md:block">
-              <Button variant="outline" size="sm" onClick={() => router.push("/")} className="ml-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push("/")}
+                className="ml-4"
+              >
                 Back to Builder
               </Button>
             </div>
@@ -432,9 +540,11 @@ export default function CorporatePortfolio({
               className="md:hidden"
               onClick={() => {
                 // Create a state for mobile menu if it doesn't exist
-                const mobileMenuOpen = (window as any).mobileMenuOpen
-                ;(window as any).mobileMenuOpen = !mobileMenuOpen
-                document.getElementById("mobile-menu")?.classList.toggle("hidden")
+                const mobileMenuOpen = (window as any).mobileMenuOpen;
+                (window as any).mobileMenuOpen = !mobileMenuOpen;
+                document
+                  .getElementById("mobile-menu")
+                  ?.classList.toggle("hidden");
               }}
               style={{ color: primaryColor }}
             >
@@ -443,18 +553,27 @@ export default function CorporatePortfolio({
           </div>
 
           {/* Mobile navigation */}
-          <nav id="mobile-menu" className="md:hidden pt-4 pb-2 flex flex-col space-y-3 hidden bg-white border-t mt-2">
+          <nav
+            id="mobile-menu"
+            className="md:hidden pt-4 pb-2 flex flex-col space-y-3 hidden bg-white border-t mt-2"
+          >
             {pages
               .filter((p) => p.enabled)
               .map((page) => (
                 <Link
                   key={page.id}
                   href={`/portfolio/${page.id}`}
-                  className={`py-2 ${currentPage === page.id ? "font-medium" : "text-gray-600"}`}
-                  style={{ color: currentPage === page.id ? primaryColor : undefined }}
+                  className={`py-2 ${
+                    currentPage === page.id ? "font-medium" : "text-gray-600"
+                  }`}
+                  style={{
+                    color: currentPage === page.id ? primaryColor : undefined,
+                  }}
                   onClick={() => {
-                    document.getElementById("mobile-menu")?.classList.add("hidden")
-                    ;(window as any).mobileMenuOpen = false
+                    document
+                      .getElementById("mobile-menu")
+                      ?.classList.add("hidden");
+                    (window as any).mobileMenuOpen = false;
                   }}
                 >
                   {page.name}
@@ -464,8 +583,8 @@ export default function CorporatePortfolio({
               href="/"
               className="py-2 text-gray-600 font-medium"
               onClick={() => {
-                document.getElementById("mobile-menu")?.classList.add("hidden")
-                ;(window as any).mobileMenuOpen = false
+                document.getElementById("mobile-menu")?.classList.add("hidden");
+                (window as any).mobileMenuOpen = false;
               }}
             >
               Back to Builder
@@ -478,12 +597,19 @@ export default function CorporatePortfolio({
       <main className="flex-grow">{renderPageContent()}</main>
 
       {/* Footer */}
-      <footer className="py-10 text-white" style={{ backgroundColor: primaryColor }}>
+      <footer
+        className="py-10 text-white"
+        style={{ backgroundColor: primaryColor }}
+      >
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
-              <div className="font-bold text-xl mb-2">{userDetails?.name || "Your Name"}</div>
-              <p className="text-white/80">{userDetails?.title || "Your Professional Title"}</p>
+              <div className="font-bold text-xl mb-2">
+                {userDetails?.name || "Your Name"}
+              </div>
+              <p className="text-white/80">
+                {userDetails?.title || "Your Professional Title"}
+              </p>
             </div>
             <div className="flex space-x-6">
               {userDetails?.socialLinks?.linkedin && (
@@ -519,11 +645,11 @@ export default function CorporatePortfolio({
             </div>
           </div>
           <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
-            © {new Date().getFullYear()} {userDetails?.name || "Your Name"}. All rights reserved.
+            © {new Date().getFullYear()} {userDetails?.name || "Your Name"}. All
+            rights reserved.
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }
-

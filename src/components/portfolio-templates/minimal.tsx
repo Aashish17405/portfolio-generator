@@ -144,14 +144,19 @@ export default function MinimalPortfolio({
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/portfolio/about">
-                <Button className="rounded-full px-6 text-white" style={{ backgroundColor: secondaryColor }}>
+                <Button className="rounded-full px-6 text-white hover:cursor-pointer" style={{ backgroundColor: secondaryColor }}>
                   View My Work
                 </Button>
               </Link>
               <Link href="/portfolio/contact">
                 <Button
                   variant="outline"
-                  className={`rounded-full px-6 ${user.backgroundImage ? "border-white text-white hover:bg-white/10" : "border-primary text-primary hover:bg-primary/5"}`}
+                  className={`rounded-full px-6  hover:cursor-pointer ${user.backgroundImage ? "border-white text-white hover:bg-white/10" : ""}`}
+                  style={{
+                    borderColor: user.backgroundImage ? "white" : primaryColor,
+                    color: user.backgroundImage ? "white" : primaryColor,
+                    backgroundColor: "transparent",
+                  }}
                 >
                   Contact Me
                 </Button>
@@ -283,9 +288,17 @@ export default function MinimalPortfolio({
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
                     style={{ backgroundColor: primaryColor + "90" }}
                   >
-                    <Button variant="outline" size="sm" className="text-white border-white hover:bg-white/20">
+                    {/* <Button
+                  variant="outline"
+                  className={`rounded-full px-6  hover:cursor-pointer ${user.backgroundImage ? "border-white text-white hover:bg-white/10" : ""}`}
+                  style={{
+                    borderColor: user.backgroundImage ? "white" : primaryColor,
+                    color: user.backgroundImage ? "white" : primaryColor,
+                    backgroundColor: "transparent",
+                  }}
+                >
                       View Project <ExternalLink className="ml-2" size={14} />
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
                 <div className="p-6">

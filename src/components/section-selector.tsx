@@ -82,20 +82,22 @@ export function SectionSelector({ sections, pages, onChange }: SectionSelectorPr
       <div className="space-y-2">
         {filteredSections.length > 0 ? (
           filteredSections.map((section) => (
-            <Card key={section.id} className="p-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="text-primary">{getIconForSection(section.id)}</div>
-                <span className="font-medium">{section.name}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id={`section-${section.id}`}
-                  checked={section.enabled}
-                  onCheckedChange={() => handleToggleSection(section.id)}
-                />
-                <Label htmlFor={`section-${section.id}`} className="text-sm">
-                  {section.enabled ? "Enabled" : "Disabled"}
-                </Label>
+            <Card key={section.id} className="p-3 flex items-center">
+              <div className="flex items-center w-full">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="text-primary">{getIconForSection(section.id)}</div>
+                  <span className="font-medium">{section.name}</span>
+                </div>
+                <div className="flex items-center gap-2 ml-auto">
+                  <Switch
+                    id={`section-${section.id}`}
+                    checked={section.enabled}
+                    onCheckedChange={() => handleToggleSection(section.id)}
+                  />
+                  <Label htmlFor={`section-${section.id}`} className="text-sm">
+                    {section.enabled ? "Enabled" : "Disabled"}
+                  </Label>
+                </div>
               </div>
             </Card>
           ))
@@ -108,4 +110,3 @@ export function SectionSelector({ sections, pages, onChange }: SectionSelectorPr
     </div>
   )
 }
-

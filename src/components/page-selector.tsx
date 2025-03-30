@@ -90,22 +90,20 @@ export function PageSelector({ pages, onChange }: PageSelectorProps) {
                       <Card
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className={`p-3 flex items-center justify-between ${!page.enabled ? "opacity-60" : ""}`}
+                        className={`p-3 flex items-center ${!page.enabled ? "opacity-60" : ""}`}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center w-full">
                           {editMode && (
-                            <div {...provided.dragHandleProps} className="cursor-grab">
+                            <div {...provided.dragHandleProps} className="cursor-grab mr-3">
                               <GripVertical size={18} className="text-gray-400" />
                             </div>
                           )}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-1">
                             <div className="text-primary">{getIconComponent(page.icon)}</div>
                             <span className="font-medium">{page.name}</span>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
                           {page.id !== "home" && (
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center gap-2 ml-auto">
                               <Switch
                                 id={`page-${page.id}`}
                                 checked={page.enabled}
@@ -129,4 +127,3 @@ export function PageSelector({ pages, onChange }: PageSelectorProps) {
     </div>
   )
 }
-

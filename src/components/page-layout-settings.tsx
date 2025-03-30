@@ -31,7 +31,7 @@ export function PageLayoutSettings({
       <p className="text-gray-600">Customize which pages and sections appear in your portfolio and their order.</p>
 
       <Tabs defaultValue="pages" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="pages">Pages</TabsTrigger>
           <TabsTrigger value="sections">Sections</TabsTrigger>
         </TabsList>
