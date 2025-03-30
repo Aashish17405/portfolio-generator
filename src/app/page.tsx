@@ -446,6 +446,7 @@ export default function Home() {
                       className={`cursor-pointer h-full`}
                     >
                       <Card
+                      suppressHydrationWarning
                         className={`
           overflow-hidden transition-all duration-300 h-full
           ${

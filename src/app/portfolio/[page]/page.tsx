@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-// import { PortfolioNavigation } from "@/components/portfolio-navigation"
 import { type PageConfig, DEFAULT_PAGES } from "@/utils/types"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
