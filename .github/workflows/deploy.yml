@@ -21,8 +21,8 @@ jobs:
           cache: "npm"
 
       - name: Install Dependencies
-        run: npm install --legacy-peer-deps
-      
+        run: npm install
+
       - name: Build Application
         run: npm run build
 
@@ -49,10 +49,18 @@ jobs:
             git reset --hard origin/main
 
             echo "📦 Installing dependencies..."
-            use npm install 
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            npm install 
 
             echo "⚒️ Building project..."
             npm run build
+
+            # Ensure PM2 is installed globally
+            if ! command -v pm2 &> /dev/null; then
+              echo "🔧 Installing PM2 globally..."
+              npm install -g pm2
+            fi
 
             if pm2 list | grep -q "nextjs-app"; then
               echo "🛑 Stopping existing app..."
