@@ -87,8 +87,11 @@ export default function LandingPage() {
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
   const templatesRef = useRef(null);
-  const isHeroInView = useInView(heroRef, { once: false, amount: 0.5 });
-  const isFeaturesInView = useInView(featuresRef, { once: false, amount: 0.2 });
+  // No scroll effect for hero (always visible)
+  const isHeroInView = true;
+  // No scroll effect for features (always visible)
+  const isFeaturesInView = true;
+  // Keep scroll effect for templates section
   const isTemplatesInView = useInView(templatesRef, {
     once: false,
     amount: 0.2,
