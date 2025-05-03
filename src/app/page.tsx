@@ -81,6 +81,8 @@ export default function LandingPage() {
   const [currentColorTheme, setCurrentColorTheme] = useState<
     "purple" | "blue" | "green"
   >("purple");
+  // For mobile menu
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // For scrolling animations
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
@@ -106,6 +108,15 @@ export default function LandingPage() {
   const smoothY1 = useSpring(y1, { stiffness: 100, damping: 30 });
   const smoothY2 = useSpring(y2, { stiffness: 100, damping: 30 });
   const smoothY3 = useSpring(y3, { stiffness: 100, damping: 30 });
+
+  // Close mobile menu when navigating
+  const handleNavigation = (href: string) => {
+    setIsMobileMenuOpen(false);
+    const element = document.getElementById(href.substring(1));
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   // Remove the animation variants from here since they're now defined globally
 
@@ -156,9 +167,9 @@ export default function LandingPage() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full py-6 sticky top-0 z-40 backdrop-blur-md bg-white/70 dark:bg-zinc-900/70"
+        className="w-full py-4 md:py-6 sticky top-0 z-40 backdrop-blur-md bg-white/70 dark:bg-zinc-900/70"
       >
-        <div className="container mx-auto flex items-center justify-between">
+        <div className="container mx-auto px-4 flex items-center justify-between">
           {/* Logo */}
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -168,7 +179,34 @@ export default function LandingPage() {
             <span className="text-xl font-bold">Aquafy</span>
           </motion.div>
 
-          {/* Nav links */}
+          {/* Mobile Menu Button */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-md focus:outline-none"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <motion.span
+              animate={
+                isMobileMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }
+              }
+              className="w-6 h-0.5 bg-zinc-800 dark:bg-zinc-200 mb-1.5 transition-transform"
+            />
+            <motion.span
+              animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
+              className="w-6 h-0.5 bg-zinc-800 dark:bg-zinc-200 mb-1.5 transition-opacity"
+            />
+            <motion.span
+              animate={
+                isMobileMenuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }
+              }
+              className="w-6 h-0.5 bg-zinc-800 dark:bg-zinc-200 transition-transform"
+            />
+          </motion.button>
+
+          {/* Desktop Nav links */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -197,12 +235,12 @@ export default function LandingPage() {
             ))}
           </motion.div>
 
-          {/* CTA Button */}
+          {/* CTA Button - Desktop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex items-center gap-3"
+            className="hidden md:flex items-center gap-3"
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
@@ -214,30 +252,74 @@ export default function LandingPage() {
             </motion.div>
           </motion.div>
         </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800"
+            >
+              <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+                {["Templates", "Features"].map((item) => (
+                  <motion.div
+                    key={item}
+                    whileTap={{ scale: 0.95 }}
+                    className="py-2 border-b border-zinc-100 dark:border-zinc-800"
+                  >
+                    <Link
+                      href={`#${item.toLowerCase()}`}
+                      className="text-base font-medium hover:text-purple-600 transition-colors block"
+                      onClick={() => handleNavigation(`#${item.toLowerCase()}`)}
+                    >
+                      {item}
+                    </Link>
+                  </motion.div>
+                ))}
+                <motion.div className="pt-2">
+                  <Button
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      router.push("/portfolio-generator");
+                    }}
+                  >
+                    Get Started
+                  </Button>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
 
       {/* Hero Section */}
       <section
         ref={heroRef}
-        className="container mx-auto py-20 md:py-32 relative"
+        id="hero"
+        className="container mx-auto px-4 py-16 md:py-32 relative"
       >
+        {/* Decorative elements - hidden on small screens */}
         <motion.div
           style={{ y: smoothY1 }}
-          className="absolute top-20 right-10 w-20 h-20 text-purple-200 dark:text-purple-900 opacity-50"
+          className="hidden sm:block absolute top-20 right-10 w-16 md:w-20 h-16 md:h-20 text-purple-200 dark:text-purple-900 opacity-50"
         >
           <Sparkles className="w-full h-full" />
         </motion.div>
 
         <motion.div
           style={{ y: smoothY2 }}
-          className="absolute bottom-40 left-10 w-16 h-16 text-blue-200 dark:text-blue-900 opacity-50"
+          className="hidden sm:block absolute bottom-40 left-10 w-12 md:w-16 h-12 md:h-16 text-blue-200 dark:text-blue-900 opacity-50"
         >
           <Layout className="w-full h-full" />
         </motion.div>
 
         <motion.div
           style={{ y: smoothY3 }}
-          className="absolute top-40 left-1/4 w-12 h-12 text-pink-200 dark:text-pink-900 opacity-50"
+          className="hidden sm:block absolute top-40 left-1/4 w-10 md:w-12 h-10 md:h-12 text-pink-200 dark:text-pink-900 opacity-50"
         >
           <Palette className="w-full h-full" />
         </motion.div>
@@ -260,11 +342,11 @@ export default function LandingPage() {
                 repeat: Number.POSITIVE_INFINITY,
                 repeatType: "reverse",
               }}
-              className="absolute -top-12 -right-12 text-purple-600"
+              className="absolute -top-8 -right-8 md:-top-12 md:-right-12 text-purple-600"
             >
-              <Sparkles className="h-10 w-10" />
+              <Sparkles className="h-8 w-8 md:h-10 md:w-10" />
             </motion.div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 md:mb-6">
               Your Portfolio,{" "}
               <motion.span
                 animate={{
@@ -280,7 +362,7 @@ export default function LandingPage() {
               >
                 Perfectly Styled
                 <motion.div
-                  className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-green-600"
+                  className="absolute -bottom-1 md:-bottom-2 left-0 right-0 h-0.5 md:h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-green-600"
                   animate={{
                     scaleX: [0, 1, 1, 0],
                     x: ["-100%", "0%", "0%", "100%"],
@@ -295,7 +377,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 max-w-3xl mb-10"
+            className="text-base sm:text-lg md:text-2xl text-zinc-600 dark:text-zinc-400 max-w-3xl mb-6 md:mb-10 px-2"
           >
             Choose from our professionally designed templates and showcase your
             work with style. Minimal, Creative, or Corporate — we have the
@@ -306,12 +388,16 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full sm:w-auto"
+            >
               <Button
                 size="lg"
-                className="bg-purple-600 hover:bg-purple-700 text-lg px-8 relative group"
+                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-base md:text-lg px-6 md:px-8 relative group"
                 onClick={() => router.push("/portfolio-generator")}
               >
                 <span className="relative z-10">Browse Templates</span>
@@ -321,7 +407,7 @@ export default function LandingPage() {
                   whileHover={{ scale: 1 }}
                   transition={{ duration: 0.3 }}
                 />
-                <ArrowRight className="ml-2 h-5 w-5 relative z-10" />
+                <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 relative z-10" />
               </Button>
             </motion.div>
           </motion.div>
@@ -332,7 +418,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 60 }}
           animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-          className="mt-20 relative"
+          className="mt-12 sm:mt-16 md:mt-20 relative px-4 sm:px-0"
         >
           <motion.div
             animate={{
@@ -350,11 +436,13 @@ export default function LandingPage() {
           <div className="relative bg-white dark:bg-zinc-900 rounded-xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
             <div className="flex flex-col md:flex-row">
               {/* Template Selector */}
-              <div className="p-6 md:w-1/3 border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800">
-                <h3 className="text-xl font-bold mb-4">Choose Your Template</h3>
+              <div className="p-4 sm:p-6 md:w-1/3 border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
+                  Choose Your Template
+                </h3>
 
                 <motion.div
-                  className="space-y-3"
+                  className="space-y-2 sm:space-y-3"
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
@@ -1783,7 +1871,7 @@ export default function LandingPage() {
       <section
         id="features"
         ref={featuresRef}
-        className="container mx-auto py-20"
+        className="container mx-auto px-4 py-16 md:py-20"
       >
         <motion.div
           initial={{ opacity: 0 }}
@@ -2145,13 +2233,13 @@ function StyleOption({
       }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`p-4 rounded-lg cursor-pointer transition-colors ${
+      className={`p-3 sm:p-4 rounded-lg cursor-pointer transition-colors ${
         isActive
           ? "bg-purple-100 dark:bg-purple-900/50 border-2 border-purple-600"
           : "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 border-2 border-transparent"
       }`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2 sm:gap-3">
         <motion.div
           animate={isActive ? { rotate: [0, 10, -10, 0] } : {}}
           transition={{ duration: 0.5 }}
@@ -2159,13 +2247,17 @@ function StyleOption({
             isActive ? "text-purple-600" : "text-zinc-500 dark:text-zinc-400"
           }`}
         >
-          {icon}
+          <div className="w-4 h-4 sm:w-5 sm:h-5">{icon}</div>
         </motion.div>
         <div>
-          <h4 className={`font-medium ${isActive ? "text-purple-600" : ""}`}>
+          <h4
+            className={`text-sm sm:text-base font-medium ${
+              isActive ? "text-purple-600" : ""
+            }`}
+          >
             {title}
           </h4>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
             {description}
           </p>
         </div>
@@ -2189,17 +2281,19 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
         boxShadow:
           "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
       }}
-      className="bg-white dark:bg-zinc-900 p-8 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800"
+      className="bg-white dark:bg-zinc-900 p-5 sm:p-6 md:p-8 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800"
     >
       <motion.div
         whileHover={{ scale: 1.1, rotate: 5 }}
         transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        className="mb-4"
+        className="mb-3 md:mb-4"
       >
-        {icon}
+        <div className="w-8 h-8 md:w-10 md:h-10">{icon}</div>
       </motion.div>
-      <h3 className="text-xl font-bold mb-2">{title}</h3>
-      <p className="text-zinc-600 dark:text-zinc-400">{description}</p>
+      <h3 className="text-lg md:text-xl font-bold mb-1 md:mb-2">{title}</h3>
+      <p className="text-sm md:text-base text-zinc-600 dark:text-zinc-400">
+        {description}
+      </p>
     </motion.div>
   );
 }
@@ -2241,7 +2335,7 @@ function TemplateCard({
             type: "spring",
             stiffness: 500,
           }}
-          className="absolute top-4 right-4 bg-purple-600 text-white text-xs font-medium px-2 py-1 rounded-full z-10"
+          className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-purple-600 text-white text-xs font-medium px-2 py-1 rounded-full z-10"
         >
           Popular
         </motion.div>
@@ -2250,7 +2344,7 @@ function TemplateCard({
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
-        className="h-48 bg-zinc-200 dark:bg-zinc-800 relative overflow-hidden"
+        className="h-36 sm:h-48 bg-zinc-200 dark:bg-zinc-800 relative overflow-hidden"
       >
         <img
           src={image || "/placeholder.svg"}
@@ -2275,9 +2369,11 @@ function TemplateCard({
         </motion.div>
       </motion.div>
 
-      <div className="p-6">
-        <h3 className="text-xl font-bold mb-2">{title}</h3>
-        <p className="text-zinc-600 dark:text-zinc-400 mb-4">{description}</p>
+      <div className="p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">{title}</h3>
+        <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mb-3 sm:mb-4">
+          {description}
+        </p>
         <div className="flex justify-between items-center">
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -2287,6 +2383,7 @@ function TemplateCard({
             <Button
               size="sm"
               variant="outline"
+              className="text-xs sm:text-sm"
               onClick={() => router.push("/portfolio-generator")}
             >
               Use Template
