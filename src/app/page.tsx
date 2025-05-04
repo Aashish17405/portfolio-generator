@@ -179,7 +179,7 @@ export default function LandingPage() {
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-2"
           >
-            <span className="text-xl font-bold">Aquafy</span>
+            <span className="text-xl font-bold">Aurafy</span>
           </motion.div>
 
           {/* Mobile Menu Button */}
@@ -2194,7 +2194,7 @@ export default function LandingPage() {
               whileHover={{ scale: 1.05 }}
               className="flex items-center gap-2 mb-6 md:mb-0"
             >
-              <span className="text-xl font-bold">Aquafy</span>
+              <span className="text-xl font-bold">Aurafy</span>
             </motion.div>
 
             <motion.div
@@ -2203,7 +2203,7 @@ export default function LandingPage() {
               transition={{ delay: 1 }}
               className="text-sm text-zinc-600 dark:text-zinc-400"
             >
-              <p>© {new Date().getFullYear()} Aquafy. All rights reserved.</p>
+              <p>© {new Date().getFullYear()} Aurafy. All rights reserved.</p>
             </motion.div>
           </motion.div>
         </div>
